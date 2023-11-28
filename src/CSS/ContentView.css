@@ -1,0 +1,37 @@
+/* ContentView.css */
+
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    transition: margin-left 0.5s; /* Add a transition for smooth animation */
+}
+
+.selected-content {
+    max-width: 90%; /* Ensures that content doesn't overflow the viewport */
+    max-height: 100%; /* Ensures that content doesn't overflow the viewport */
+    width: auto; /* Allows content to shrink on smaller screens */
+}
+
+/* Additional styling for images and videos */
+.selected-content img,
+.selected-content video {
+    max-width: 100%; /* Ensures images and videos are responsive */
+    height: auto; /* Maintains aspect ratio */
+}
+
+/* Adjustments when the sidebar is in the "close" state */
+.sidebar.close + .content {
+    margin-left: 100px; /* Adjust the margin based on the "close" state width */
+}
+
+
+/* Adjustments for smaller screens (e.g., mobile devices) */
+@media screen and (max-width: 767px) {
+    .sidebar.close + .content {
+        margin-left: 0; /* Reset the margin for smaller screens */
+    }
+}
+
+

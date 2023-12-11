@@ -2,13 +2,29 @@ import React, { useState, useEffect } from 'react';
 import '../CSS/ContentView.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentCompleted, markContentCompleted}) => {
+const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentCompleted, markContentCompleted }) => {
     const [loadingProgress, setLoadingProgress] = useState(0);
     const [previousMargin, setPreviousMargin] = useState('5px'); // State to store the previous margin
 
 
 
     // const isMobile = window.innerWidth <= 767;
+    const handleLoadForVideos = () => {
+        console.log('Loading video+++++++++:', selectedContent.id);
+        const mediaElement = document.getElementById('selected-media');
+        if (mediaElement && selectedContent.type === 'video') {
+            const storedProgress = localStorage.getItem(`videoProgress-${selectedContent.id}`);
+            if (storedProgress) {
+                const seekTime = (parseFloat(storedProgress) / 100) * mediaElement.duration;
+                mediaElement.currentTime = seekTime;
+            }
+            // Do not mark content as completed if progress is close to 100%
+            if (parseFloat(storedProgress) < 99) {
+                markContentCompleted();
+            }
+        }
+    };
+
 
 
     const handleLoad = () => {
@@ -23,6 +39,9 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
         if (mediaElement) {
             const progress = (mediaElement.currentTime / mediaElement.duration) * 100;
             setLoadingProgress(progress);
+            //storing in local storage
+            localStorage.setItem(`videoProgress-${selectedContent.id}`, progress.toString());
+
         }
     };
 
@@ -36,6 +55,8 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
             if (mediaElement) {
                 if (selectedContent.type === 'video') {
                     mediaElement.addEventListener('timeupdate', handleTimeUpdate);
+                    mediaElement.addEventListener('loadedmetadata', handleLoadForVideos);
+
                 } else if (selectedContent.type === 'image') {
                     mediaElement.addEventListener('load', handleLoad);
                 }
@@ -50,6 +71,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
             const mediaElement = document.getElementById('selected-media');
             if (mediaElement) {
                 mediaElement.removeEventListener('timeupdate', handleTimeUpdate);
+                mediaElement.removeEventListener('loadedmetadata', handleLoadForVideos);
                 mediaElement.removeEventListener('load', handleLoad);
             }
         };
@@ -94,6 +116,8 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
                                     id="selected-media"
                                     className="w-100"
                                     onTimeUpdate={handleTimeUpdate}
+                                    onLoadedMetadata={handleLoadForVideos}
+
                                 >
                                     <source src={selectedContent.src} type="video/mp4" />
                                 </video>

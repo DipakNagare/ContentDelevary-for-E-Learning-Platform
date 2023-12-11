@@ -7,6 +7,8 @@ import Video1 from '../assets/videos/v2.mp4'
 import Video2 from '../assets/videos/v2.mp4'
 import Video3 from '../assets/videos/v3.mpeg'
 
+import PdfFile from '../assets/pdfs/sampleFile.pdf'
+
 
 
 
@@ -22,18 +24,21 @@ const MenuItems = [
       { id: 5, name: "Images3", type: 'image', src: image3 },
       { id: 6, name: "video3", type: 'video', src: Video3 },
       { id: 7, name: "Images4", type: 'image', src: image4 },
+      { id: 8, name: 'PDF Sample', type: 'pdf', src: PdfFile },
+
     ],  
   },
   {
     title: 'Overview',
     icon: 'bx-grid-alt',
     submenus: [
-      { id: 8, name: "Images1", type: 'image', src: image1 },
-      { id: 9, name: "video1", type: 'video', src: Video1 },
-      { id: 10, name: "Images2", type: 'image', src: image2 },
-      { id: 11, name: "video2", type: 'video', src: Video2 },
-      { id: 12, name: "Images3", type: 'image', src: image3 },
-      { id: 13, name: "video3", type: 'video', src: Video3 },
+      { id: 9, name: "Images1", type: 'image', src: image1 },
+      { id: 10, name: "video1", type: 'video', src: Video1 },
+      { id: 11, name: "Images2", type: 'image', src: image2 },
+      { id: 12, name: "video2", type: 'video', src: Video2 },
+      { id: 13, name: "Images3", type: 'image', src: image3 },
+      { id: 14, name: "video3", type: 'video', src: Video3 },
+      { id: 15, name: 'PDF Sample', type: 'pdf', src: PdfFile },
     ],
   },
 ];

@@ -11,6 +11,10 @@
     z-index: 1000;
     box-shadow: 0 0 2px var(--grey-color-light);
   }
+
+  body {
+    background-color: #eee;
+  }
   
   .logo_item {
     display: flex;
@@ -61,3 +65,40 @@
     background-color: var(--dark-background-color);
     color: var(--dark-text-color);
   }
+
+  /* .navbar_button {
+    margin-top: 1px; 
+  } */
+
+/* .custom-button {
+  margin-left: 2px;
+  min-width: 100px;
+} */
+
+/* Add responsive styling for small screens */
+@media (max-width: 576px) {
+  .navbar {
+      flex-direction: row; /* Keep items in a row on small screens */
+      justify-content:space-between; /* Add space between items */
+      align-items: center; /* Center items vertically */
+      padding: 5px; /* Adjust padding for better spacing */
+  }
+
+  .custom-button {
+    margin-right: -30px;
+    min-width: 70px;
+
+}
+}
+
+@media (min-width: 768px) {
+  .custom-button {
+      margin-left: -50px;
+      min-width: 100px;
+
+  }
+}
+
+
+  /* next and privious button  */
+  

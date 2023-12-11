@@ -14,6 +14,12 @@ function App() {
   const [isSidebarHoverable, setSidebarHoverable] = useState(false);
   const [isDarkMode, setDarkMode] = useState(false);
   const [selectedContent, setSelectedContent] = useState(null);
+  const [isPreviousContentCompleted, setPreviousContentCompleted] = useState(false);
+
+
+  const markContentCompleted = () => {
+    setPreviousContentCompleted(true);
+  };
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -74,6 +80,9 @@ function App() {
         isDarkMode={isDarkMode}
         handleSidebarToggle={handleSidebarToggle}
         handleDarkModeToggle={handleDarkModeToggle}
+        setSelectedContent={setSelectedContent}
+        menuItems={MenuItems}
+
       />
       <Sidebar
         isSidebarOpen={isSidebarOpen}
@@ -85,7 +94,14 @@ function App() {
 
       />
       {/* Add other components/content here */}
-      <ContentView selectedContent={selectedContent} />
+      <ContentView 
+      selectedContent={selectedContent}
+      setSelectedContent={setSelectedContent}
+      isPreviousContentCompleted={isPreviousContentCompleted}
+      markContentCompleted={markContentCompleted}
+      menuItems={MenuItems}
+
+       />
 
     </div>
   );

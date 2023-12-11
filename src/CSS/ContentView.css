@@ -9,7 +9,7 @@
 }
 
 .selected-content {
-    max-width: 90%; /* Ensures that content doesn't overflow the viewport */
+    max-width: 100%; /* Ensures that content doesn't overflow the viewport */
     max-height: 100%; /* Ensures that content doesn't overflow the viewport */
     width: auto; /* Allows content to shrink on smaller screens */
 }
@@ -24,6 +24,7 @@
 /* Adjustments when the sidebar is in the "close" state */
 .sidebar.close + .content {
     margin-left: 100px; /* Adjust the margin based on the "close" state width */
+    
 }
 
 
@@ -32,6 +33,11 @@
     .sidebar.close + .content {
         margin-left: 0; /* Reset the margin for smaller screens */
     }
+    .content {
+        height: 70vh;
+        transition: margin-left 0.5s; /* Add a transition for smooth animation */
+     
+        
+
+    }
 }
-
-

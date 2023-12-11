@@ -1,7 +1,7 @@
 /* Sidebar.css */
 
 .sidebar {
-  background-color: var(--white-color);
+  background-color: #fff;
   width: 260px;
   position: fixed;
   top: 0;
@@ -25,6 +25,7 @@
 
 .menu_content {
   position: relative;
+  margin-top: 20px;
 }
 
 .menu_title {
@@ -202,6 +203,16 @@
   background-color: var(--dark-background-color);
   color: var(--dark-text-color);
 }
+@media screen and (max-width: 767px) {
+  .sidebar {
+    display: block;
+  }
 
+  .sidebar.open {
+    display: block;
+  }
 
-
+  .sidebar.close {
+    display: none;
+  }
+}

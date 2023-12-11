@@ -22,7 +22,7 @@ const MenuItems = [
       { id: 5, name: "Images3", type: 'image', src: image3 },
       { id: 6, name: "video3", type: 'video', src: Video3 },
       { id: 7, name: "Images4", type: 'image', src: image4 },
-    ],
+    ],  
   },
   {
     title: 'Overview',

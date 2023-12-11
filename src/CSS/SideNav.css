@@ -20,15 +20,10 @@ body {
   transition: all 0.5s ease;
 }
 
-body.dark {
+App dark {
   background-color: #333;
   --white-color: #333;
   --blue-color: #fff;
   --grey-color: #f2f2f2;
   --grey-color-light: #aaa;
 }
-
-/* Navbar */
-
-
-/* Sidebar */

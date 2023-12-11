@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../CSS/SideBar.css';
 
-const Sidebar = ({ isSidebarOpen, isSidebarHoverable, handleSidebarCollapse, handleSidebarExpand, menuItems, handleSublinkClick }) => {
+const Sidebar = ({ isSidebarOpen, isSidebarHoverable, handleSidebarCollapse, handleSidebarExpand, menuItems,handleSublinkClick }) => {
     const [activeSubmenu, setActiveSubmenu] = useState(null);
 
     const toggleSubmenu = (index) => {

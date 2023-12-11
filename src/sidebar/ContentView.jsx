@@ -2,13 +2,19 @@ import React, { useState, useEffect } from 'react';
 import '../CSS/ContentView.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const ContentView = ({ selectedContent, isSidebarOpen }) => {
+const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentCompleted, markContentCompleted}) => {
     const [loadingProgress, setLoadingProgress] = useState(0);
+    const [previousMargin, setPreviousMargin] = useState('5px'); // State to store the previous margin
+
+
+
+    // const isMobile = window.innerWidth <= 767;
+
 
     const handleLoad = () => {
-        // Introduce a 3-second delay before showing 100% progress for images
         setTimeout(() => {
             setLoadingProgress(100);
+            markContentCompleted(); // Mark the content as completed when loaded
         }, 3000);
     };
 
@@ -21,6 +27,8 @@ const ContentView = ({ selectedContent, isSidebarOpen }) => {
     };
 
     useEffect(() => {
+        console.log('Selected content updated:', selectedContent);
+
         setLoadingProgress(0);
 
         if (selectedContent) {
@@ -33,6 +41,10 @@ const ContentView = ({ selectedContent, isSidebarOpen }) => {
                 }
             }
         }
+        // Store the current margin before the sidebar is closed
+        if (!isSidebarOpen) {
+            setPreviousMargin(contentStyle.marginLeft);
+        }
 
         return () => {
             const mediaElement = document.getElementById('selected-media');
@@ -41,11 +53,12 @@ const ContentView = ({ selectedContent, isSidebarOpen }) => {
                 mediaElement.removeEventListener('load', handleLoad);
             }
         };
-    }, [selectedContent]);
+    }, [selectedContent, isSidebarOpen]);
 
     const contentStyle = {
-        marginLeft: isSidebarOpen ? '260px' : '80px',
+        marginLeft: isSidebarOpen ? '5px' : previousMargin || '260px', // Use previous margin or default to '260px'
     };
+
 
     return (
         <div className="content" style={contentStyle}>
@@ -63,29 +76,33 @@ const ContentView = ({ selectedContent, isSidebarOpen }) => {
                             {Math.round(loadingProgress)}%
                         </div>
                     </div>
-                    {selectedContent.type === 'image' ? (
-                        <>
-                            <img
-                                src={selectedContent.src}
-                                alt={selectedContent.name}
-                                id="selected-media"
-                                className="img-fluid"
-                            />
-                        </>
-                    ) : selectedContent.type === 'video' ? (
-                        <>
-                            <video
-                                controls
-                                id="selected-media"
-                                className="w-100"
-                                onTimeUpdate={handleTimeUpdate}
-                            >
-                                <source src={selectedContent.src} type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                        </>
+                    {selectedContent.type === 'image' || isPreviousContentCompleted ? (
+                        selectedContent.type === 'image' ? (
+                            <>
+                                <img
+                                    src={selectedContent.src}
+                                    alt={selectedContent.name}
+                                    id="selected-media"
+                                    className="img-fluid"
+
+                                />
+                            </>
+                        ) : selectedContent.type === 'video' ? (
+                            <>
+                                <video
+                                    controls
+                                    id="selected-media"
+                                    className="w-100"
+                                    onTimeUpdate={handleTimeUpdate}
+                                >
+                                    <source src={selectedContent.src} type="video/mp4" />
+                                </video>
+                            </>
+                        ) : (
+                            <p>Unsupported content type</p>
+                        )
                     ) : (
-                        <p>Unsupported content type</p>
+                        <p>Complete the previous content 100% before proceeding to the next menu.</p>
                     )}
                 </div>
             )}

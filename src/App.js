@@ -25,20 +25,24 @@ function App() {
     setSidebarOpen(!isSidebarOpen);
   };
   const handleSublinkClick = (submenu) => {
-    // Handle the selected submenu item here
+  // Handle the selected submenu item here
     setSelectedContent(submenu);
 
     if (submenu.type === 'pdf') {
-      // For PDF, initiate the download
-      const link = document.createElement('a');
-      link.href = submenu.src;
-      link.target = '_blank'; // Open in a new tab/window
-      link.download = 'downloaded_file.pdf';
-      link.click();
-  } else {
-      // Handle other types (image, video) as needed
-      console.log('Clicked on:', submenu.type, submenu.src);
-  }
+        // Initiate the download
+        const link = document.createElement('a');
+        link.href = submenu.src;
+        link.download = 'downloaded_file.pdf';
+        link.click();
+
+        // Open in a new tab/window after a short delay (adjust the delay as needed)
+        setTimeout(() => {
+            window.open(submenu.src, '_blank');
+        }, 1000);
+    } else {
+        // Handle other types (image, video) as needed
+        console.log('Clicked on:', submenu.type, submenu.src);
+    }
 };
 
   const handleSidebarCollapse = () => {

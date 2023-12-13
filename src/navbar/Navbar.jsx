@@ -61,13 +61,15 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
                                 PS
                             </Button>
                         </div> */}
-        <div className="col-6 col-md-3 mb-2">
+        <div className="col-6 col-md-3 ">
           <Button
             onClick={handlePreviousSubMenu}
             disabled={currentSubMenuIndex === 0}
             size="sm"
             block
-            className="custom-button mb-2 mb-md-0" // Use Bootstrap margin classes
+            className="custom-button" // Use Bootstrap margin classes
+            
+            
           >
             Prev
           </Button>

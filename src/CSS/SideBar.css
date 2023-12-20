@@ -121,6 +121,7 @@
 
 .submenu {
   display: none;
+  height: 50%;
 }
 
 .submenu_item .arrow-left {

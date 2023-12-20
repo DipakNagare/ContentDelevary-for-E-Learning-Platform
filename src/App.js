@@ -15,6 +15,8 @@ function App() {
   const [isDarkMode, setDarkMode] = useState(false);
   const [selectedContent, setSelectedContent] = useState(null);
   const [isPreviousContentCompleted, setPreviousContentCompleted] = useState(false);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+  
 
 
   const markContentCompleted = () => {
@@ -25,25 +27,29 @@ function App() {
     setSidebarOpen(!isSidebarOpen);
   };
   const handleSublinkClick = (submenu) => {
-  // Handle the selected submenu item here
+    // Handle the selected submenu item here
     setSelectedContent(submenu);
 
-    if (submenu.type === 'pdf') {
-        // Initiate the download
-        const link = document.createElement('a');
-        link.href = submenu.src;
-        link.download = 'downloaded_file.pdf';
-        link.click();
+    // Save selectedContent to local storage
+    localStorage.setItem('selectedContent', JSON.stringify(submenu));
 
-        // Open in a new tab/window after a short delay (adjust the delay as needed)
-        setTimeout(() => {
-            window.open(submenu.src, '_blank');
-        }, 1000);
+
+    if (submenu.type === 'pdf') {
+      // Initiate the download
+      const link = document.createElement('a');
+      link.href = submenu.src;
+      link.download = 'downloaded_file.pdf';
+      link.click();
+
+      // Open in a new tab/window after a short delay (adjust the delay as needed)
+      setTimeout(() => {
+        window.open(submenu.src, '_blank');
+      }, 1000);
     } else {
-        // Handle other types (image, video) as needed
-        console.log('Clicked on:', submenu.type, submenu.src);
+      // Handle other types (image, video) as needed
+      console.log('Clicked on:', submenu.type, submenu.src);
     }
-};
+  };
 
   const handleSidebarCollapse = () => {
     setSidebarOpen(true);
@@ -87,6 +93,9 @@ function App() {
     } else {
       setSidebarOpen(false);
     }
+    // Load initial selectedContent from local storage
+    const storedContent = JSON.parse(localStorage.getItem('selectedContent'));
+    setSelectedContent(storedContent);
   }, []);
 
   return (
@@ -107,17 +116,25 @@ function App() {
         handleSidebarExpand={handleSidebarExpand}
         menuItems={MenuItems}
         handleSublinkClick={handleSublinkClick}
+        loadingProgress={loadingProgress}
+        selectedContent={selectedContent}  // Pass selectedContent as a prop
+        setLoadingProgress={setLoadingProgress}
+        
+
+
 
       />
       {/* Add other components/content here */}
-      <ContentView 
-      selectedContent={selectedContent}
-      setSelectedContent={setSelectedContent}
-      isPreviousContentCompleted={isPreviousContentCompleted}
-      markContentCompleted={markContentCompleted}
-      menuItems={MenuItems}
+      <ContentView
+        selectedContent={selectedContent}
+        setSelectedContent={setSelectedContent}
+        isPreviousContentCompleted={isPreviousContentCompleted}
+        markContentCompleted={markContentCompleted}
+        menuItems={MenuItems}
+        loadingProgress={loadingProgress}  // Pass loadingProgress as a prop
+        setLoadingProgress={setLoadingProgress}
 
-       />
+      />
 
     </div>
   );

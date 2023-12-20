@@ -52,7 +52,7 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
       {/* <div className="search_bar">
         <input type="text" placeholder="Search" />
       </div> */}
-      <div className="row mt-2">
+      <div className="row d-flex justify-content-center">
         {/* <div className="col-3">
                             <Button
                                 onClick={handlePreviousSection}
@@ -64,12 +64,12 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
         <div className="col-6 col-md-3 ">
           <Button
             onClick={handlePreviousSubMenu}
-            disabled={currentSubMenuIndex === 0}
+            // disabled={currentSubMenuIndex === 0}
             size="sm"
             block
             className="custom-button" // Use Bootstrap margin classes
-            
-            
+
+
           >
             Prev
           </Button>

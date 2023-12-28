@@ -30,6 +30,8 @@ function App() {
     // Handle the selected submenu item here
     setSelectedContent(submenu);
 
+    // valueProgress = parseInt(localStorage.getItem(`contentId-${submenu.id}`)) || 0 ;
+
     // Save selectedContent to local storage
     localStorage.setItem('selectedContent', JSON.stringify(submenu));
 
@@ -62,7 +64,14 @@ function App() {
   };
 
   const handleDarkModeToggle = () => {
-    setDarkMode(!isDarkMode);
+    const newDarkModeState = !isDarkMode;
+    setDarkMode(newDarkModeState);
+  
+    // Save dark mode preference to localStorage
+    localStorage.setItem('darkMode', JSON.stringify(newDarkModeState));
+  
+    // Toggle dark mode class on the body element
+    document.body.classList.toggle('dark', newDarkModeState);
   };
 
   useEffect(() => {
@@ -88,6 +97,16 @@ function App() {
   }, [isSidebarHoverable]);
 
   useEffect(() => {
+    const storedDarkMode = localStorage.getItem('darkMode');
+
+    // Check if storedDarkMode is not null or undefined
+    if (storedDarkMode !== null && storedDarkMode !== undefined) {
+      // Parse the storedDarkMode value and set the dark mode state
+      setDarkMode(JSON.parse(storedDarkMode));
+  
+      // Toggle dark mode class on the body element
+      document.body.classList.toggle('dark', JSON.parse(storedDarkMode));
+    }
     if (window.innerWidth < 768) {
       setSidebarOpen(true);
     } else {
@@ -109,6 +128,7 @@ function App() {
         menuItems={MenuItems}
 
       />
+     <div className={`wrapper ${!isSidebarOpen ? 'sidebar-open' : ''}`}>
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         isSidebarHoverable={isSidebarHoverable}
@@ -119,9 +139,6 @@ function App() {
         loadingProgress={loadingProgress}
         selectedContent={selectedContent}  // Pass selectedContent as a prop
         setLoadingProgress={setLoadingProgress}
-        
-
-
 
       />
       {/* Add other components/content here */}
@@ -130,11 +147,12 @@ function App() {
         setSelectedContent={setSelectedContent}
         isPreviousContentCompleted={isPreviousContentCompleted}
         markContentCompleted={markContentCompleted}
-        menuItems={MenuItems}
+        MenuItems={MenuItems}
         loadingProgress={loadingProgress}  // Pass loadingProgress as a prop
         setLoadingProgress={setLoadingProgress}
 
       />
+      </div>
 
     </div>
   );

@@ -9,17 +9,31 @@
 }
 
 :root {
-  --white-color: #fff;
-  --blue-color: #4070f4;
-  --grey-color: #707070;
+  --white-color: #dededee1;
+  --blue-color: #747474;
+  --grey-color: #3e3e3e;
   --grey-color-light: #aaa;
+  
 }
+
+.wrapper {
+  display: flex;
+  transition: margin-left 0.5s;
+}
+
+.sidebar-open {
+  margin-left: 170px; /* Adjust this margin based on the sidebar width */
+}
+
 
 body {
   background-color: #e7f2fd;
   transition: all 0.5s ease;
 }
 
+body.dark {
+  background-color: #000; /* Change this to the desired background color for dark mode */
+}
 App dark {
   background-color: #333;
   --white-color: #333;

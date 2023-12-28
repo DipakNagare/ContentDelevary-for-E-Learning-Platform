@@ -5,7 +5,7 @@ import '../CSS/SideBar.css';
 
 const Sidebar = ({ isSidebarOpen, isSidebarHoverable, handleSidebarCollapse, handleSidebarExpand, menuItems, handleSublinkClick, loadingProgress,selectedContent,setLoadingProgress }) => {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
-
+  // let valueProgress = 30;
   const toggleSubmenu = (index) => {
     setActiveSubmenu(activeSubmenu === index ? null : index);
   };
@@ -37,12 +37,13 @@ const Sidebar = ({ isSidebarOpen, isSidebarHoverable, handleSidebarCollapse, han
                       onClick={() => handleSublinkClick(submenu)}
                     >
                       {submenu.name}
-                      {activeSubmenu === index && selectedContent && selectedContent.id === submenu.id && (
+                      {activeSubmenu === index && selectedContent &&  (
                         <div className="progress-bar-container">
                           {/* Circular Progress Bar */}
+                         {/* {valueProgress = parseInt(localStorage.getItem(`contentId-${submenu.id}`)) || 0 }; */}
                           <CircularProgressbar
-                            value={loadingProgress}
-                            text={`${Math.round(loadingProgress)}%`}
+                            value={parseInt(localStorage.getItem(`contentId-${submenu.id}`)) || 0}
+                            text={`${Math.round(parseFloat(localStorage.getItem(`contentId-${submenu.id}`)) || 0)}%`}
                             strokeWidth={10}
                             styles={{
                               root: { width: '30px', height: '30px', marginLeft: '30px' },

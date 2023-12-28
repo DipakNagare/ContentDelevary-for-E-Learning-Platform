@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../CSS/ContentView.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Sidebar from './Sidebar';
 
 
 const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentCompleted, markContentCompleted, loadingProgress, setLoadingProgress }) => {
@@ -11,7 +10,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
   const handleLoadForVideos = () => {
     const mediaElement = document.getElementById('selected-media');
     if (mediaElement && selectedContent.type === 'video') {
-      const storedProgress = localStorage.getItem(`videoProgress-${selectedContent.id}`);
+      const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
       console.log('Loaded Stored Video Progress:', storedProgress);
 
       if (storedProgress) {
@@ -28,7 +27,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
 
   const updateImageProgress = (progress) => {
     setLoadingProgress(progress);
-    localStorage.setItem(`imageProgress-${selectedContent.id}`, progress.toString());
+    localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
     console.log('Updated Image Progress:', progress);
   };
 
@@ -57,12 +56,12 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
     const mediaElement = document.getElementById('selected-media');
     if (mediaElement) {
       const progress = (mediaElement.currentTime / mediaElement.duration) * 100;
-      const storedProgress = parseFloat(localStorage.getItem(`videoProgress-${selectedContent.id}`)) || 0;
+      const storedProgress = parseFloat(localStorage.getItem(`contentId-${selectedContent.id}`)) || 0;
       const progressDifference = Math.abs(progress - storedProgress);
 
       if (!isUserInteracting && progressDifference < 1) {
         setLoadingProgress(progress);
-        localStorage.setItem(`videoProgress-${selectedContent.id}`, progress.toString());
+        localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
         console.log('Updated Video Progress:', progress);
       }
     }
@@ -116,7 +115,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
 
   useEffect(() => {
     if (selectedContent && selectedContent.id) {
-      const storedProgress = localStorage.getItem(`videoProgress-${selectedContent.id}`);
+      const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
       console.log('Stored Video Progress on Mount:', storedProgress);
       if (storedProgress) {
         setLoadingProgress(parseFloat(storedProgress));
@@ -125,7 +124,6 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
   }, [selectedContent]);
 
   const contentStyle = {
-    marginLeft: isSidebarOpen ? '5px' : previousMargin || '260px',
     marginTop:'100px',
   };
   

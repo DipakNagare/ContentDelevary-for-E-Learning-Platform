@@ -12,6 +12,21 @@
     box-shadow: 0 0 2px var(--grey-color-light);
   }
 
+  .zoom-buttons-container {
+    display: flex;
+    border: 1px solid #222222; /* Add your preferred border color */
+    border-radius: 5px; /* Add border radius for rounded corners, if desired */
+  }
+
+  .zoom-buttons-container a {
+    padding: 3px; /* Adjust padding for inner spacing */
+    font-size: 5px; /* Adjust font size for buttons */
+  }
+  .zoom-buttons-container i {
+    cursor: pointer;
+    color: var(--grey-color);
+  }  
+  
   body {
     background-color: #eee;
   }
@@ -22,7 +37,7 @@
     column-gap: 10px;
     font-size: 22px;
     font-weight: 500;
-    color:rgb(4, 4, 148);
+    color:rgb(0, 81, 255);
   }
   
   .navbar img {
@@ -31,25 +46,7 @@
     object-fit: cover;
     border-radius: 50%;
   }
-/*   
-  .search_bar {
-    height: 47px;
-    max-width: 430px;
-    width: 100%;
-  }
-  
-  .search_bar input {
-    height: 100%;
-    width: 100%;
-    border-radius: 25px;
-    font-size: 18px;
-    outline: none;
-    background-color: var(--white-color);
-    color: var(--grey-color);
-    border: 1px solid var(--grey-color-light);
-    padding: 0 20px;
-  } */
-  
+
   .navbar_content {
     display: flex;
     align-items: center;
@@ -62,7 +59,7 @@
     color: var(--grey-color);
   }
   .dark .navbar {
-    background-color: var(--dark-background-color);
+    background-color: black;
     color: var(--dark-text-color);
   }
 
@@ -98,6 +95,7 @@
 
   }
 }
+
 
 
   /* next and privious button  */

@@ -1,23 +1,37 @@
 /* Sidebar.css */
 
 .sidebar {
-  background-color: var(--white-color);
+  background-color: whitesmoke; 
   width: 260px;
   position: fixed;
   top: 70px;
   left: 0;
   height: 100%;
-  padding: 80px 20px;
+  padding: 80px 0;
   z-index: 100;
   overflow-y: scroll;
-  box-shadow: 0 0 1px var(--grey-color-light);
+  box-shadow: 5px 0 10px #565759;
   transition: all 0.5s ease;
   
 }
 
+.tooltip-white-bg-dark-mode .tooltip-inner {
+  background-color: whitesmoke !important;
+  color: #000000 !important;
+}
+
+.tooltip-white-bg-dark-mode .arrow::before {
+  border-top-color: #ffffff !important;
+}
+
+/* circuler progress bar eka line */
+.nav_link {
+  justify-content:space-between; /* Align circular progress bar to the right */
+
+}
 .sidebar.close {
-  padding: 60px 0;
-  width: 80px;
+  padding: 60px 5px;
+  width: 110px;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -27,13 +41,14 @@
 .menu_content {
   position: relative;
   margin-top: -50px;
+  
 }
 
-.menu_title {
+/* .menu_title {
   margin: 15px 0;
   padding: 0 20px;
   font-size: 18px;
-}
+} */
 
 .sidebar.close .menu_title {
   padding: 6px 30px;
@@ -42,18 +57,6 @@
 .menu_title::before {
   color: var(--grey-color);
   white-space: nowrap;
-}
-
-.menu_dahsboard::before {
-  content: "Dashboard";
-}
-
-.menu_editor::before {
-  content: "Editor";
-}
-
-.menu_setting::before {
-  content: "Setting";
 }
 
 .sidebar.close .menu_title::before {
@@ -68,6 +71,7 @@
 .menu_items {
   padding: 0;
   list-style: none;
+  
 }
 
 .navlink_icon {
@@ -80,13 +84,14 @@
   border-radius: 6px;
 }
 
-.navlink_icon::before {
+/* .navlink_icon::before {
   content: "";
   position: absolute;
   height: 100%;
   width: calc(100% + 100px);
-  left: -20px;
-}
+  left: -0px;
+} */
+
 
 .navlink_icon:hover {
   background: var(--blue-color);
@@ -123,6 +128,7 @@
 .submenu {
   display: none;
   height: 50%;
+  
 }
 
 .submenu_item .arrow-left {
@@ -145,7 +151,7 @@
 }
 
 .submenu .sublink {
-  padding: 15px 15px 15px 52px;
+  padding: 5px 10px 5px 30px;
 }
 
 .bottom_content {
@@ -168,7 +174,7 @@
   width: 100%;
   color: var(--grey-color);
   border-top: 1px solid var(--grey-color-light);
-  background-color: var(--white-color);
+  background-color:whitesmoke;
 }
 
 .bottom i {
@@ -192,23 +198,28 @@
   display: none;
 }
 
-#sidebarOpen {
-  font-size: 25px;
+/* #sidebarOpen {
+  font-size: 250px;
   display: block;
   margin-right: 10px;
   cursor: pointer;
   color: var(--grey-color);
-}
+} */
 
 /* Add dark mode styles */
 .dark .sidebar {
-  background-color: var(--dark-background-color);
-  color: var(--dark-text-color);
+  background-color:black;
+  /* color: var(--dark-text-color); */
+}
+
+.dark .bottom {
+  background-color: black;
+  /* color: var(--dark-text-color); */
 }
 @media screen and (max-width: 767px) {
   .sidebar {
     display: block;
-    top: 50px;
+    top: 85px;
     transition: all 0.5s ease;
 
   }

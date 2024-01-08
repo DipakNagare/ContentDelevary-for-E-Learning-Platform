@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import '../CSS/ContentView.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Swal from 'sweetalert2';
 
 
-const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentCompleted, markContentCompleted, loadingProgress, setLoadingProgress }) => {
+
+const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loadingProgress, setLoadingProgress }) => {
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const [previousMargin, setPreviousMargin] = useState('3px');
+
+
+  let intervalId;
 
   const handleLoadForVideos = () => {
     const mediaElement = document.getElementById('selected-media');
@@ -25,32 +30,56 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
     }
   };
 
+
+
   const updateImageProgress = (progress) => {
     setLoadingProgress(progress);
     localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
     console.log('Updated Image Progress:', progress);
+
+
+    // Mark content as completed only when progress is 100%
+    if (progress >= 100) {
+      markContentCompleted(selectedContent.id);
+    }
   };
 
   const handleLoadForImages = () => {
-    updateImageProgress(100);
-    markContentCompleted(selectedContent.id);
+    clearInterval(intervalId);
 
-  };
+    const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
+    const duration = selectedContent.duration || 0;
+    const updateInterval = 1000;
+    const totalUpdates = duration / (updateInterval / 1000);
+    let progress = storedProgress ? parseFloat(storedProgress) : 0;
 
-  const handleTimeUpdateForImages = () => {
-    const mediaElement = document.getElementById('selected-media');
+    if (progress < 100) {
+      intervalId = setInterval(() => {
+        progress += 100 / totalUpdates;
+        updateImageProgress(progress);
 
-    if (!isUserInteracting && mediaElement && mediaElement.tagName === 'IMG') {
-      const currentTime = mediaElement.currentTime;
-
-      // Wait for 3 seconds and then set progress to 100%
-      if (currentTime < 3) {
-        setTimeout(() => {
-          updateImageProgress(100);
-        }, 3000);
-      }
+        if (progress >= 100) {
+          clearInterval(intervalId);
+          // markContentCompleted(selectedContent.id);
+        }
+      }, updateInterval);
     }
   };
+
+  // const handleTimeUpdateForImages = () => {
+  //   const mediaElement = document.getElementById('selected-media');
+
+  //   if (!isUserInteracting && mediaElement && mediaElement.tagName === 'IMG') {
+  //     const currentTime = mediaElement.currentTime;
+
+  //     // Wait for 3 seconds and then set progress to 100%
+  //     if (currentTime < 3) {
+  //       setTimeout(() => {
+  //         updateImageProgress(100);
+  //       }, 3000);
+  //     }
+  //   }
+  // };
 
   const handleTimeUpdate = () => {
     const mediaElement = document.getElementById('selected-media');
@@ -102,13 +131,13 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
     const mediaElement = document.getElementById('selected-media');
     if (mediaElement && selectedContent.type === 'image') {
       mediaElement.addEventListener('load', handleLoadForImages);
-      mediaElement.addEventListener('timeupdate', handleTimeUpdateForImages);
+      // mediaElement.addEventListener('timeupdate', handleTimeUpdateForImages);
     }
 
     return () => {
       if (mediaElement && selectedContent.type === 'image') {
         mediaElement.removeEventListener('load', handleLoadForImages);
-        mediaElement.removeEventListener('timeupdate', handleTimeUpdateForImages);
+        // mediaElement.removeEventListener('timeupdate', handleTimeUpdateForImages);
       }
     };
   }, [selectedContent]);
@@ -123,40 +152,38 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
     }
   }, [selectedContent]);
 
+  useEffect(() => {
+    // Cleanup the interval when the component unmounts or when selectedContent changes
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [intervalId, selectedContent]);
+
   const contentStyle = {
-    marginTop:'100px',
-  };
-  
-  const progressBarStyle = {
-    zIndex: 1, // Set the z-index to a value greater than the z-index of the content
+    marginTop: '100px',
   };
 
-//   if (!isPreviousContentCompleted) {
-//     Swal.fire({
-//       title: 'Incomplete Content',
-//       text: 'Complete the previous content 100% before proceeding to the next menu.',
-//       icon: 'warning',
-//     });
-//   }
-// }, [isPreviousContentCompleted]);
+  const progressBarStyle = {
+    zIndex: 1, 
+  };
 
   return (
     <div className="content" style={contentStyle}>
       <div className="progress mb-3" style={progressBarStyle}>
-            <div
-              className="progress-bar"
-              role="progressbar"
-              style={{ width: `${loadingProgress}%` }}
-              aria-valuenow={Math.round(loadingProgress)}
-              aria-valuemin="0"
-              aria-valuemax="100"
-            >
-              {Math.round(loadingProgress)}%
-            </div>
-          </div>
+        <div
+          className="progress-bar progress-bar-striped progress-bar-animated"
+          role="progressbar"
+          style={{ width: `${loadingProgress}%` }}
+          aria-valuenow={Math.round(loadingProgress)}
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          {Math.round(loadingProgress)}%
+        </div>
+      </div>
       {selectedContent && (
         <div className="selected-content">
-          {selectedContent.type === 'image' || isPreviousContentCompleted ? (
+          {selectedContent ? (
             selectedContent.type === 'image' ? (
               <>
                 <img
@@ -171,7 +198,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
                 <video
                   controls
                   id="selected-media"
-              
+
                   onTimeUpdate={handleTimeUpdate}
                   onLoadedMetadata={handleLoadForVideos}
                 >
@@ -181,11 +208,57 @@ const ContentView = ({ selectedContent, isSidebarOpen, isPreviousContentComplete
             ) : (
               <p>PDF</p>
             )
-          ) : (
-            <p>Complete the previous content 100% before proceeding to the next menu.</p>
-          )}
+          ) : null }
         </div>
       )}
+      <div>
+        {/* Button placed after the content */}
+        <button
+          className="custom-btn btn-12"
+          style={{
+            position: 'fixed',
+            bottom: '21px',
+            right: '20px',
+            fontSize: '14px', // Adjust the font size
+            padding: '0px 0px', // Adjust the padding2
+            zIndex: 2 
+          }}
+          onClick={() => {
+            Swal.fire({
+              title: 'Feedback',
+              html: `
+                
+                  <div style="background: #FFF; padding: 2rem; max-width: 576px; width: 100%; border-radius: .75rem; box-shadow: 8px 8px 30px rgba(0,0,0,.05); text-align: center;">
+                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">${selectedContent.name}</h3>
+                    <form action="#">
+                      <div style="display: flex; justify-content: center; align-items: center; grid-gap: .5rem; font-size: 2rem; color: #FFBD13; margin-bottom: 2rem;">
+                        <input type="number" name="rating" hidden>
+                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 0;"></i>
+                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 1;"></i>
+                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 2;"></i>
+                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 3;"></i>
+                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 4;"></i>
+                      </div> 
+                      <textarea style="width: 100%; background: #F5F5F5; padding: 1rem; border-radius: .5rem; border: none; outline: none; resize: none; margin-bottom: .5rem;" name="opinion" cols="30" rows="5" placeholder="Your opinion..."></textarea>
+                     
+                    </form>
+                  </div>
+                `,
+              showCloseButton: true,
+              showCancelButton: false,
+              focusConfirm: false,
+              confirmButtonText: 'Submit',
+              cancelButtonText: 'Cancel',
+              backdrop: `rgba(0,0,0,0.8)`,
+              preConfirm: () => {
+                // Handle the form submission here if needed
+                // Return a Promise that resolves with the form data
+              }
+            });
+          }}
+        >
+         <span>Click!</span><span>Feedback</span></button>
+      </div>
     </div>
   );
 };

@@ -19,9 +19,9 @@ const MenuItems = [
     submenus: [
       { id: 1, name: "Images1", type: 'image', src: image1,duration: 20 },
       { id: 2, name: "video1", type: 'video', src: Video1,  },
-      { id: 3, name: "Images2", type: 'image', src: image2,duration: 3 },
+      { id: 3, name: "Images2", type: 'image', src: image2,duration: 3 }, 
       { id: 4, name: "video2", type: 'video', src: Video2,  },
-      { id:  20, name: "Images3", type: 'image', src: image3,duration: 300 },
+      { id: 5, name: "Images3", type: 'image', src: image3,duration: 300 },
       { id: 6, name: "video3", type: 'video', src: Video3,  },
       { id: 7, name: "Images4", type: 'image', src: image4,duration: 20  },
       { id: 8, name: 'PDF samp ', type: 'pdf', src: PdfFile },

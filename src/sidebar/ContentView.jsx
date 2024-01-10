@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../CSS/ContentView.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '../CSS/FeedBackTemplate.css'
 import Swal from 'sweetalert2';
 
 
@@ -164,8 +165,9 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
   };
 
   const progressBarStyle = {
-    zIndex: 1, 
+    zIndex: 1,
   };
+
 
   return (
     <div className="content" style={contentStyle}>
@@ -208,7 +210,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
             ) : (
               <p>PDF</p>
             )
-          ) : null }
+          ) : null}
         </div>
       )}
       <div>
@@ -221,9 +223,11 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
             right: '20px',
             fontSize: '14px', // Adjust the font size
             padding: '0px 0px', // Adjust the padding2
-            zIndex: 2 
+            zIndex: 2
           }}
           onClick={() => {
+            const contentId = selectedContent.id;
+            const contentName = selectedContent.name;
             Swal.fire({
               title: 'Feedback',
               html: `
@@ -231,14 +235,14 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
                   <div style="background: #FFF; padding: 2rem; max-width: 576px; width: 100%; border-radius: .75rem; box-shadow: 8px 8px 30px rgba(0,0,0,.05); text-align: center;">
                     <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">${selectedContent.name}</h3>
                     <form action="#">
-                      <div style="display: flex; justify-content: center; align-items: center; grid-gap: .5rem; font-size: 2rem; color: #FFBD13; margin-bottom: 2rem;">
-                        <input type="number" name="rating" hidden>
-                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 0;"></i>
-                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 1;"></i>
-                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 2;"></i>
-                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 3;"></i>
-                        <i style="cursor: pointer;" class='bx bx-star star' style="--i: 4;"></i>
-                      </div> 
+                    <div class="starrating risingstar  flex-row-reverse" style="display: flex; justify-content: center; align-items: center; grid-gap: .5rem; font-size: 2rem; color: #FFBD13; margin-bottom: 2rem;">
+                    <input type="number" name="rating" hidden>
+                    <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 star"></label>
+                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 star"></label>
+                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 star"></label>
+                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 star"></label>
+                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star"></label>
+                        </div>
                       <textarea style="width: 100%; background: #F5F5F5; padding: 1rem; border-radius: .5rem; border: none; outline: none; resize: none; margin-bottom: .5rem;" name="opinion" cols="30" rows="5" placeholder="Your opinion..."></textarea>
                      
                     </form>
@@ -251,13 +255,28 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
               cancelButtonText: 'Cancel',
               backdrop: `rgba(0,0,0,0.8)`,
               preConfirm: () => {
-                // Handle the form submission here if needed
+                const rating = document.querySelector('input[name="rating"]:checked')?.value;
+                const opinion = document.querySelector('textarea[name="opinion"]').value;
+
+                // Do something with the feedback data
+                console.log('Content ID:', contentId);
+                console.log('Content Name:', contentName);
+                console.log('Rating:', rating);
+                console.log('Opinion:', opinion);
+                // You can store the feedback data or send it to a server here
+
                 // Return a Promise that resolves with the form data
+                return {
+                  contentId: contentId || null,
+                  contentName: contentName || null,
+                  rating: rating || null,
+                  opinion: opinion || null,
+                };
               }
             });
           }}
         >
-         <span>Click!</span><span>Feedback</span></button>
+          <span>Click!</span><span>Feedback</span></button>
       </div>
     </div>
   );

@@ -131,7 +131,7 @@
         margin-right: px;
     } */
     .selected-content img,
-    .selected-content video {
+    .selected-content video { 
         height: calc(50vh - 50px);
         overflow-y: auto;
     }

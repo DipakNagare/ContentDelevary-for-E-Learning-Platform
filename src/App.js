@@ -22,9 +22,6 @@ function App() {
 
 
   const markContentCompleted = (contentType) => {
-    // console.log(`Marking ${contentType} as completed`);
-    // setPreviousContentCompleted(true);
-    // localStorage.setItem(`isPreviousContentCompleted_${contentType}`, 'true');
   };
 
   const handleSidebarToggle = () => {
@@ -42,22 +39,7 @@ function App() {
   
       // Save selectedContent to local storage
       localStorage.setItem('selectedContent', JSON.stringify(submenu));
-  
-      if (submenu.type === 'pdf') {
-        // Initiate the download
-        const link = document.createElement('a');
-        link.href = submenu.src;
-        link.download = 'downloaded_file.pdf';
-        link.click();
-  
-        // Open in a new tab/window after a short delay (adjust the delay as needed)
-        setTimeout(() => {
-          window.open(submenu.src, '_blank');
-        }, 1000);
-      } else {
-        // Handle other types (image, video) as needed
-        console.log('Clicked on:', submenu.type, submenu.src);
-      }
+
     } else {
       // Display a SweetAlert modal when the previous content is not completed
       Swal.fire({
@@ -65,7 +47,6 @@ function App() {
         text: `Complete the previous content ${submenu.name} 100% before proceeding to the next menu.`,
         icon: 'warning',
       });
-      // You can customize the title, text, and icon as needed
     }
   };
 
@@ -131,9 +112,6 @@ function App() {
     // Load initial selectedContent from local storage
     const storedContent = JSON.parse(localStorage.getItem('selectedContent'));
     setSelectedContent(storedContent);
-
-    // const storedCompletionStatus = localStorage.getItem(`isPreviousContentCompleted`);
-    // setPreviousContentCompleted(storedCompletionStatus === 'true');
   }, []);
 
   return (
@@ -157,19 +135,16 @@ function App() {
           isDarkMode={isDarkMode}
           handleSublinkClick={handleSublinkClick}
           loadingProgress={loadingProgress}
-          selectedContent={selectedContent}  // Pass selectedContent as a prop
+          selectedContent={selectedContent}  
           setLoadingProgress={setLoadingProgress}
 
         />
-        {/* Add other components/content here */}
         <ContentView
           selectedContent={selectedContent}
           setSelectedContent={setSelectedContent}
-          // isPreviousContentCompleted={isPreviousContentCompleted}
-          // setPreviousContentCompleted={setPreviousContentCompleted}
           markContentCompleted={markContentCompleted}
           MenuItems={MenuItems}
-          loadingProgress={loadingProgress}  // Pass loadingProgress as a prop
+          loadingProgress={loadingProgress}  
           setLoadingProgress={setLoadingProgress}
 
         />

@@ -3,14 +3,13 @@ import '../CSS/ContentView.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../CSS/FeedBackTemplate.css'
 import Swal from 'sweetalert2';
-
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
 
 
 const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loadingProgress, setLoadingProgress }) => {
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const [previousMargin, setPreviousMargin] = useState('3px');
-
-
   let intervalId;
 
   const handleLoadForVideos = () => {
@@ -20,17 +19,22 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
       console.log('Loaded Stored Video Progress:', storedProgress);
 
       if (storedProgress) {
-        const seekTime = (parseFloat(storedProgress) / 100) * mediaElement.duration;
+        const seekTime = (parseFloat(storedProgress) / 100) * selectedContent.duration;
         mediaElement.currentTime = seekTime;
       }
 
+      //duration object initialize using mediaElement.duration 
+      if (selectedContent.duration === null) {
+        selectedContent.duration = mediaElement.duration;
+      }
+
+      console.log("selectedContent.duration=====" + selectedContent.duration);
       // Do not mark content as completed if progress is close to 100%
       if (parseFloat(storedProgress) < 99) {
         markContentCompleted();
       }
     }
   };
-
 
 
   const updateImageProgress = (progress) => {
@@ -85,7 +89,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
   const handleTimeUpdate = () => {
     const mediaElement = document.getElementById('selected-media');
     if (mediaElement) {
-      const progress = (mediaElement.currentTime / mediaElement.duration) * 100;
+      const progress = (mediaElement.currentTime / selectedContent.duration) * 100;
       const storedProgress = parseFloat(localStorage.getItem(`contentId-${selectedContent.id}`)) || 0;
       const progressDifference = Math.abs(progress - storedProgress);
 
@@ -207,8 +211,20 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
                   <source src={selectedContent.src} type="video/mp4" />
                 </video>
               </>
+            ) : selectedContent.type === 'pdf' ? (
+              // Render PDF using @react-pdf-viewer/core
+              <div
+                style={{
+                  border: '1px solid rgba(0, 0, 0, 0.3)',
+                  height: '500px',
+                }}
+              >
+                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+                  <Viewer fileUrl={selectedContent.src} />
+                </Worker>
+              </div>
             ) : (
-              <p>PDF</p>
+              <p>Unknown content type</p>
             )
           ) : null}
         </div>

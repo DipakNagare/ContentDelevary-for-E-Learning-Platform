@@ -16,7 +16,6 @@ function App() {
   const [isSidebarHoverable, setSidebarHoverable] = useState(false);
   const [isDarkMode, setDarkMode] = useState(false);
   const [selectedContent, setSelectedContent] = useState(null);
-  // const [isPreviousContentCompleted, setPreviousContentCompleted] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
 
@@ -32,11 +31,12 @@ function App() {
     const previousContentId = submenu.id - 1;
     const storedProgress = localStorage.getItem(`contentId-${previousContentId}`);
     const isPreviousContentCompleted = storedProgress && parseFloat(storedProgress) > 99;
-    
+
     // If the previous content is completed, proceed to the selected submenu
     if (submenu.id === 1 || isPreviousContentCompleted) {
+      console.log("submenu", submenu)
       setSelectedContent(submenu);
-  
+
       // Save selectedContent to local storage
       localStorage.setItem('selectedContent', JSON.stringify(submenu));
 
@@ -135,7 +135,7 @@ function App() {
           isDarkMode={isDarkMode}
           handleSublinkClick={handleSublinkClick}
           loadingProgress={loadingProgress}
-          selectedContent={selectedContent}  
+          selectedContent={selectedContent}
           setLoadingProgress={setLoadingProgress}
 
         />
@@ -144,7 +144,7 @@ function App() {
           setSelectedContent={setSelectedContent}
           markContentCompleted={markContentCompleted}
           MenuItems={MenuItems}
-          loadingProgress={loadingProgress}  
+          loadingProgress={loadingProgress}
           setLoadingProgress={setLoadingProgress}
 
         />

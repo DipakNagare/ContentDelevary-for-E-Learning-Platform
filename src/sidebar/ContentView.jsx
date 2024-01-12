@@ -12,11 +12,77 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
   const [previousMargin, setPreviousMargin] = useState('3px');
   let intervalId;
 
+
+
+  const updatePDFProgress2 = (progress) => {
+    setLoadingProgress(progress);
+    localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
+    // console.log('Updated Image Progress:', progress);
+
+
+    // Mark content as completed only when progress is 100%
+    if (progress >= 100) {
+      markContentCompleted(selectedContent.id);
+    }
+  };
+
+
+  const handleLoadForPDF = () => {
+    clearInterval(intervalId);
+
+    const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
+    console.log("storedProgress", storedProgress)
+    const duration = selectedContent.duration || 0;
+    console.log("duration", duration)
+    const updateInterval = 1000;
+    const totalUpdates = duration / (updateInterval / 1000);
+    console.log("totalUpdates", totalUpdates)
+    let progress = storedProgress ? parseFloat(storedProgress) : 0;
+    console.log("progress", progress)
+
+    if (progress < 100) {
+      intervalId = setInterval(() => {
+        progress += 100 / totalUpdates;
+        updatePDFProgress2(progress);
+
+        if (progress >= 100) {
+          clearInterval(intervalId);
+          // markContentCompleted(selectedContent.id);
+        }
+      }, updateInterval);
+    }
+  };
+
+  useEffect(() => {
+    const mediaElement = document.getElementById('selected-media');
+    
+    if (mediaElement && selectedContent.type === 'pdf') {
+      const viewerElement = mediaElement.querySelector('.rpv-core__viewer');
+      
+      // Check if the viewer is ready
+      if (viewerElement) {
+        handleLoadForPDF(); // Call handleLoadForPDF directly when the viewer is ready
+      } else {
+        mediaElement.addEventListener('load', handleLoadForPDF);
+      }
+    }
+
+    return () => {
+      if (mediaElement && selectedContent.type === 'pdf') {
+        mediaElement.removeEventListener('load', handleLoadForPDF);
+      }
+    };
+  }, [selectedContent]);
+
+
+  // ===========================================================================================
+
+
   const handleLoadForVideos = () => {
     const mediaElement = document.getElementById('selected-media');
     if (mediaElement && selectedContent.type === 'video') {
       const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
-      console.log('Loaded Stored Video Progress:', storedProgress);
+      // console.log('Loaded Stored Video Progress:', storedProgress);
 
       if (storedProgress) {
         const seekTime = (parseFloat(storedProgress) / 100) * selectedContent.duration;
@@ -28,7 +94,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
         selectedContent.duration = mediaElement.duration;
       }
 
-      console.log("selectedContent.duration=====" + selectedContent.duration);
+      // console.log("selectedContent.duration=====" + selectedContent.duration);
       // Do not mark content as completed if progress is close to 100%
       if (parseFloat(storedProgress) < 99) {
         markContentCompleted();
@@ -40,7 +106,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
   const updateImageProgress = (progress) => {
     setLoadingProgress(progress);
     localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
-    console.log('Updated Image Progress:', progress);
+    // console.log('Updated Image Progress:', progress);
 
 
     // Mark content as completed only when progress is 100%
@@ -49,14 +115,19 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
     }
   };
 
+
   const handleLoadForImages = () => {
     clearInterval(intervalId);
 
     const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
+    // console.log("storedProgress", storedProgress)
     const duration = selectedContent.duration || 0;
+    // console.log("duration", duration)
     const updateInterval = 1000;
     const totalUpdates = duration / (updateInterval / 1000);
+    // console.log("totalUpdates", totalUpdates)
     let progress = storedProgress ? parseFloat(storedProgress) : 0;
+    // console.log("progress", progress)
 
     if (progress < 100) {
       intervalId = setInterval(() => {
@@ -71,20 +142,6 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
     }
   };
 
-  // const handleTimeUpdateForImages = () => {
-  //   const mediaElement = document.getElementById('selected-media');
-
-  //   if (!isUserInteracting && mediaElement && mediaElement.tagName === 'IMG') {
-  //     const currentTime = mediaElement.currentTime;
-
-  //     // Wait for 3 seconds and then set progress to 100%
-  //     if (currentTime < 3) {
-  //       setTimeout(() => {
-  //         updateImageProgress(100);
-  //       }, 3000);
-  //     }
-  //   }
-  // };
 
   const handleTimeUpdate = () => {
     const mediaElement = document.getElementById('selected-media');
@@ -96,20 +153,19 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
       if (!isUserInteracting && progressDifference < 1) {
         setLoadingProgress(progress);
         localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
-        console.log('Updated Video Progress:', progress);
       }
     }
   };
 
-  useEffect(() => {
-    console.log('ContentView useEffect - Start');
 
+  useEffect(() => {
     setLoadingProgress(0);
 
     const mediaElement = document.getElementById('selected-media');
 
     if (mediaElement) {
       if (selectedContent.type === 'video') {
+        // console.log("vid - 2")
         mediaElement.addEventListener('timeupdate', handleTimeUpdate);
         mediaElement.addEventListener('loadedmetadata', handleLoadForVideos);
         mediaElement.addEventListener('seeking', () => setIsUserInteracting(true));
@@ -122,8 +178,10 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
     }
 
     return () => {
-      console.log('ContentView useEffect - Cleanup');
+      // console.log("vid - 3")
+      // console.log('ContentView useEffect - Cleanup');
       if (mediaElement) {
+        // console.log("vid - 4")
         mediaElement.removeEventListener('timeupdate', handleTimeUpdate);
         mediaElement.removeEventListener('loadedmetadata', handleLoadForVideos);
         mediaElement.removeEventListener('seeking', () => setIsUserInteracting(true));
@@ -132,15 +190,21 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
     };
   }, [selectedContent, isSidebarOpen]);
 
+
   useEffect(() => {
+    // console.log("img - 1")
     const mediaElement = document.getElementById('selected-media');
     if (mediaElement && selectedContent.type === 'image') {
+      // console.log("img - 2")
       mediaElement.addEventListener('load', handleLoadForImages);
       // mediaElement.addEventListener('timeupdate', handleTimeUpdateForImages);
     }
 
     return () => {
+      // console.log("img - 3")
+      // console.log("selectedContent.type - img", selectedContent.type)
       if (mediaElement && selectedContent.type === 'image') {
+        // console.log("img - 4")
         mediaElement.removeEventListener('load', handleLoadForImages);
         // mediaElement.removeEventListener('timeupdate', handleTimeUpdateForImages);
       }
@@ -148,14 +212,21 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
   }, [selectedContent]);
 
   useEffect(() => {
+    // console.log("selectedContent", selectedContent)
+  }, [selectedContent])
+
+
+  useEffect(() => {
     if (selectedContent && selectedContent.id) {
       const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
-      console.log('Stored Video Progress on Mount:', storedProgress);
+      // console.log('Stored Video Progress on Mount:', storedProgress);
       if (storedProgress) {
         setLoadingProgress(parseFloat(storedProgress));
       }
     }
   }, [selectedContent]);
+
+
 
   useEffect(() => {
     // Cleanup the interval when the component unmounts or when selectedContent changes
@@ -163,6 +234,8 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
       clearInterval(intervalId);
     };
   }, [intervalId, selectedContent]);
+
+
 
   const contentStyle = {
     marginTop: '100px',
@@ -219,9 +292,11 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
                   height: '500px',
                 }}
               >
-                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-                  <Viewer fileUrl={selectedContent.src} />
-                </Worker>
+                <div id='selected-media'>
+                  <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+                    <Viewer fileUrl={selectedContent.src} />
+                  </Worker>
+                </div>
               </div>
             ) : (
               <p>Unknown content type</p>
@@ -275,10 +350,10 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
                 const opinion = document.querySelector('textarea[name="opinion"]').value;
 
                 // Do something with the feedback data
-                console.log('Content ID:', contentId);
-                console.log('Content Name:', contentName);
-                console.log('Rating:', rating);
-                console.log('Opinion:', opinion);
+                // console.log('Content ID:', contentId);
+                // console.log('Content Name:', contentName);
+                // console.log('Rating:', rating);
+                // console.log('Opinion:', opinion);
                 // You can store the feedback data or send it to a server here
 
                 // Return a Promise that resolves with the form data

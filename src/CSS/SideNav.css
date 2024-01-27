@@ -34,7 +34,7 @@ body {
 body.dark {
   background-color: #181818; /* Change this to the desired background color for dark mode */
   --grey-color: white;
-  --grey-color-light:white;
+  --grey-color-light:rgb(114, 110, 110);
 
   
 }

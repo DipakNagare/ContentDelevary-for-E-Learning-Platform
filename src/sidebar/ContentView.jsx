@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import '../CSS/ContentView.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -5,60 +7,253 @@ import '../CSS/FeedBackTemplate.css'
 import Swal from 'sweetalert2';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
+import { Modal } from 'react-bootstrap';
+import NotesApp from '../notesApp/NotesApp';
+import { createRoot } from 'react-dom/client';
 
 
 const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loadingProgress, setLoadingProgress }) => {
+  const didOpen = () => {
+    // Render the NotesApp component inside the modal using createRoot
+    const notesAppContainer = document.getElementById('notes-app-container');
+    const root = createRoot(notesAppContainer); // Updated usage of createRoot
+    
+    root.render(
+      <React.StrictMode>
+        <NotesApp selectedContent={selectedContent} />
+      </React.StrictMode>
+    );
+  };
+
   const [isUserInteracting, setIsUserInteracting] = useState(false);
-  const [previousMargin, setPreviousMargin] = useState('3px');
+  const [currentPage, setCurrentPage] = useState(1);
   let intervalId;
 
-
-
-  const updatePDFProgress2 = (progress) => {
-    setLoadingProgress(progress);
-    localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
-    // console.log('Updated Image Progress:', progress);
-
-
-    // Mark content as completed only when progress is 100%
-    if (progress >= 100) {
-      markContentCompleted(selectedContent.id);
-    }
+  const openModal = () => {
+    Swal.fire({
+      title: 'Note App',
+      html: '<div id="notes-app-container"></div>',
+      showCloseButton: true,
+      showCancelButton: false,
+      focusConfirm: false,
+      confirmButtonText: 'Close',
+      backdrop: `rgba(0,0,0,0.8)`,
+      width: '100%',
+      preConfirm: () => {
+      },
+      didOpen,
+      
+    });
   };
 
 
-  const handleLoadForPDF = () => {
-    clearInterval(intervalId);
+  const handlePageChange = (page) => {
+    console.log('Current Page:', page.currentPage + 1);
+    setCurrentPage(page.currentPage + 1);
 
-    const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
-    console.log("storedProgress", storedProgress)
-    const duration = selectedContent.duration || 0;
-    console.log("duration", duration)
+    localStorage.setItem(`contentId-${selectedContent.submenus.id}-lastPage`, page.currentPage + 1);
+
+  };
+
+  const handleLoadForPDF = () => {
+
+    clearInterval(intervalId);
+    const mediaElement = document.getElementById('selected-media');
+    const storedPage = localStorage.getItem(`contentId-${selectedContent.submenus.id}-lastPage`);
+    const viewerElement = mediaElement.querySelector('.rpv-core__viewer');
+    const storedProgress = localStorage.getItem(`contentId-${selectedContent.submenus.id}`);
+    const duration = selectedContent.submenus.duration || 0;
     const updateInterval = 1000;
     const totalUpdates = duration / (updateInterval / 1000);
-    console.log("totalUpdates", totalUpdates)
     let progress = storedProgress ? parseFloat(storedProgress) : 0;
-    console.log("progress", progress)
+    const parsedPage = parseInt(storedPage, 10);
+
 
     if (progress < 100) {
       intervalId = setInterval(() => {
         progress += 100 / totalUpdates;
-        updatePDFProgress2(progress);
+
+        updatePDFProgress(progress);
 
         if (progress >= 100) {
           clearInterval(intervalId);
-          // markContentCompleted(selectedContent.id);
+        }
+      }, updateInterval);
+    }
+
+    if (viewerElement && storedPage && parsedPage > 1) {
+      Swal.fire({
+        title: 'Resume or Start Over',
+        text: 'Do you want to resume from where you left off or start from the beginning page?',
+        showCancelButton: true,
+        confirmButtonText: 'Resume',
+        cancelButtonText: 'Start Over',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Resume from the stored page
+          selectedContent.submenus.seektime = parsedPage;
+          console.log('Resuming PDF from page:', selectedContent.submenus.seektime);
+        } else {
+          // Start from the beginning
+          selectedContent.submenus.seektime = 1;
+          console.log('Starting PDF from the beginning.');
+        }
+      });
+    }
+  }
+
+  const handleLoadForVideos = () => {
+    const mediaElement = document.getElementById('selected-media');
+    if (mediaElement && selectedContent.submenus.type === 'video') {
+      const storedProgress = localStorage.getItem(`contentId-${selectedContent.submenus.id}`);
+
+      if (storedProgress && parseFloat(storedProgress) > 1 && parseFloat(storedProgress) <= 99) {
+        Swal.fire({
+          title: 'Resume or Start Over',
+          text: 'Do you want to resume from where you left off or start from the beginning?',
+          showCancelButton: true,
+          confirmButtonText: 'Resume',
+          cancelButtonText: 'Start Over',
+        }).then((result) => {
+          if (result.isConfirmed) {
+            const seekTime = (parseFloat(storedProgress) / 100) * selectedContent.submenus.duration;
+            mediaElement.currentTime = seekTime;
+            selectedContent.submenus.seektime = seekTime;
+            console.log('Resuming video from:', selectedContent.submenus.seektime);
+          } else {
+            mediaElement.currentTime = 0;
+            selectedContent.submenus.seektime = 0;
+            console.log('Starting video from the beginning.');
+          }
+
+          //duration object initialize using mediaElement.duration
+          if (selectedContent.submenus.duration === null) {
+            selectedContent.submenus.duration = mediaElement.duration;
+          }
+
+          // Do not mark content as completed if progress is close to 100%
+          if (parseFloat(storedProgress) < 99) {
+            markContentCompleted();
+          }
+        });
+      } else {
+        // Start the video from the beginning if there is no stored progress
+        mediaElement.currentTime = 0;
+        selectedContent.submenus.seektime = 0;
+        // console.log('Starting video from the beginning.');
+
+        //duration object initialize using mediaElement.duration
+        if (selectedContent.submenus.duration === null) {
+          selectedContent.submenus.duration = mediaElement.duration;
+        }
+      }
+    }
+  };
+  const handleLoadForImages = () => {
+    clearInterval(intervalId);
+
+    const storedProgress = localStorage.getItem(`contentId-${selectedContent.submenus.id}`);
+    const duration = selectedContent.submenus.duration || 0;
+    const updateInterval = 1000;
+    const totalUpdates = duration / (updateInterval / 1000);
+    let progress = storedProgress ? parseFloat(storedProgress) : 0;
+
+    if (progress < 100) {
+      intervalId = setInterval(() => {
+        progress += 100 / totalUpdates;
+
+        console.log("progres of image ; " + progress)
+        updateImageProgress(progress);
+
+        if (progress >= 100) {
+          clearInterval(intervalId);
         }
       }, updateInterval);
     }
   };
 
+
+
+  const updateImageProgress = (progress) => {
+    console.log('Updating image progress:', progress);
+    setLoadingProgress(progress);
+    localStorage.setItem(`contentId-${selectedContent.submenus.id}`, progress.toString());
+
+    // Mark content as completed only when progress is 100%
+    if (progress >= 100) {
+      markContentCompleted(selectedContent.submenus.id);
+    }
+  };
+
+  const updatePDFProgress = (progress) => {
+    console.log('Updating PDF progress:', progress);
+
+    setLoadingProgress(progress);
+    localStorage.setItem(`contentId-${selectedContent.submenus.id}`, progress.toString());
+
+
+    // Mark content as completed only when progress is 100%
+    if (progress >= 100) {
+      markContentCompleted(selectedContent.submenus.id);
+    }
+  };
+  const handleTimeUpdate = () => {
+    const mediaElement = document.getElementById('selected-media');
+    if (mediaElement) {
+      const progress = (mediaElement.currentTime / selectedContent.submenus.duration) * 100;
+      console.log('Updating time progress:', progress);
+      const storedProgress = parseFloat(localStorage.getItem(`contentId-${selectedContent.submenus.id}`)) || 0;
+      const progressDifference = Math.abs(progress - storedProgress);
+
+      if (!isUserInteracting && progressDifference < 1) {
+        setLoadingProgress(progress);
+        localStorage.setItem(`contentId-${selectedContent.submenus.id}`, progress.toString());
+      }
+    }
+  };
+
+  useEffect(() => {
+    setLoadingProgress(0);
+    const mediaElement = document.getElementById('selected-media');
+    if (mediaElement) {
+      if (selectedContent.submenus.type === 'video') {
+        mediaElement.addEventListener('timeupdate', handleTimeUpdate);
+        mediaElement.addEventListener('loadedmetadata', handleLoadForVideos);
+        mediaElement.addEventListener('seeking', () => setIsUserInteracting(true));
+        mediaElement.addEventListener('seeked', () => setIsUserInteracting(false));
+      }
+    }
+
+
+    return () => {
+      if (mediaElement) {
+        mediaElement.removeEventListener('timeupdate', handleTimeUpdate);
+        mediaElement.removeEventListener('loadedmetadata', handleLoadForVideos);
+        mediaElement.removeEventListener('seeking', () => setIsUserInteracting(true));
+        mediaElement.removeEventListener('seeked', () => setIsUserInteracting(false));
+      }
+    };
+  }, [selectedContent, isSidebarOpen]);
+
   useEffect(() => {
     const mediaElement = document.getElementById('selected-media');
-    
-    if (mediaElement && selectedContent.type === 'pdf') {
+    if (mediaElement && selectedContent.submenus.type === 'image') {
+      mediaElement.addEventListener('load', handleLoadForImages);
+    }
+
+    return () => {
+      if (mediaElement && selectedContent.submenus.type === 'image') {
+        mediaElement.removeEventListener('load', handleLoadForImages);
+      }
+    };
+  }, [selectedContent]);
+
+  useEffect(() => {
+    const mediaElement = document.getElementById('selected-media');
+
+    if (mediaElement && selectedContent.submenus.type === 'pdf') {
       const viewerElement = mediaElement.querySelector('.rpv-core__viewer');
-      
+
       // Check if the viewer is ready
       if (viewerElement) {
         handleLoadForPDF(); // Call handleLoadForPDF directly when the viewer is ready
@@ -68,165 +263,20 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
     }
 
     return () => {
-      if (mediaElement && selectedContent.type === 'pdf') {
+      if (mediaElement && selectedContent.submenus.type === 'pdf') {
         mediaElement.removeEventListener('load', handleLoadForPDF);
       }
     };
   }, [selectedContent]);
 
-
-  // ===========================================================================================
-
-
-  const handleLoadForVideos = () => {
-    const mediaElement = document.getElementById('selected-media');
-    if (mediaElement && selectedContent.type === 'video') {
-      const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
-      // console.log('Loaded Stored Video Progress:', storedProgress);
-
-      if (storedProgress) {
-        const seekTime = (parseFloat(storedProgress) / 100) * selectedContent.duration;
-        mediaElement.currentTime = seekTime;
-      }
-
-      //duration object initialize using mediaElement.duration 
-      if (selectedContent.duration === null) {
-        selectedContent.duration = mediaElement.duration;
-      }
-
-      // console.log("selectedContent.duration=====" + selectedContent.duration);
-      // Do not mark content as completed if progress is close to 100%
-      if (parseFloat(storedProgress) < 99) {
-        markContentCompleted();
-      }
-    }
-  };
-
-
-  const updateImageProgress = (progress) => {
-    setLoadingProgress(progress);
-    localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
-    // console.log('Updated Image Progress:', progress);
-
-
-    // Mark content as completed only when progress is 100%
-    if (progress >= 100) {
-      markContentCompleted(selectedContent.id);
-    }
-  };
-
-
-  const handleLoadForImages = () => {
-    clearInterval(intervalId);
-
-    const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
-    // console.log("storedProgress", storedProgress)
-    const duration = selectedContent.duration || 0;
-    // console.log("duration", duration)
-    const updateInterval = 1000;
-    const totalUpdates = duration / (updateInterval / 1000);
-    // console.log("totalUpdates", totalUpdates)
-    let progress = storedProgress ? parseFloat(storedProgress) : 0;
-    // console.log("progress", progress)
-
-    if (progress < 100) {
-      intervalId = setInterval(() => {
-        progress += 100 / totalUpdates;
-        updateImageProgress(progress);
-
-        if (progress >= 100) {
-          clearInterval(intervalId);
-          // markContentCompleted(selectedContent.id);
-        }
-      }, updateInterval);
-    }
-  };
-
-
-  const handleTimeUpdate = () => {
-    const mediaElement = document.getElementById('selected-media');
-    if (mediaElement) {
-      const progress = (mediaElement.currentTime / selectedContent.duration) * 100;
-      const storedProgress = parseFloat(localStorage.getItem(`contentId-${selectedContent.id}`)) || 0;
-      const progressDifference = Math.abs(progress - storedProgress);
-
-      if (!isUserInteracting && progressDifference < 1) {
-        setLoadingProgress(progress);
-        localStorage.setItem(`contentId-${selectedContent.id}`, progress.toString());
-      }
-    }
-  };
-
-
   useEffect(() => {
-    setLoadingProgress(0);
-
-    const mediaElement = document.getElementById('selected-media');
-
-    if (mediaElement) {
-      if (selectedContent.type === 'video') {
-        // console.log("vid - 2")
-        mediaElement.addEventListener('timeupdate', handleTimeUpdate);
-        mediaElement.addEventListener('loadedmetadata', handleLoadForVideos);
-        mediaElement.addEventListener('seeking', () => setIsUserInteracting(true));
-        mediaElement.addEventListener('seeked', () => setIsUserInteracting(false));
-      }
-    }
-
-    if (!isSidebarOpen) {
-      setPreviousMargin(contentStyle.marginLeft);
-    }
-
-    return () => {
-      // console.log("vid - 3")
-      // console.log('ContentView useEffect - Cleanup');
-      if (mediaElement) {
-        // console.log("vid - 4")
-        mediaElement.removeEventListener('timeupdate', handleTimeUpdate);
-        mediaElement.removeEventListener('loadedmetadata', handleLoadForVideos);
-        mediaElement.removeEventListener('seeking', () => setIsUserInteracting(true));
-        mediaElement.removeEventListener('seeked', () => setIsUserInteracting(false));
-      }
-    };
-  }, [selectedContent, isSidebarOpen]);
-
-
-  useEffect(() => {
-    // console.log("img - 1")
-    const mediaElement = document.getElementById('selected-media');
-    if (mediaElement && selectedContent.type === 'image') {
-      // console.log("img - 2")
-      mediaElement.addEventListener('load', handleLoadForImages);
-      // mediaElement.addEventListener('timeupdate', handleTimeUpdateForImages);
-    }
-
-    return () => {
-      // console.log("img - 3")
-      // console.log("selectedContent.type - img", selectedContent.type)
-      if (mediaElement && selectedContent.type === 'image') {
-        // console.log("img - 4")
-        mediaElement.removeEventListener('load', handleLoadForImages);
-        // mediaElement.removeEventListener('timeupdate', handleTimeUpdateForImages);
-      }
-    };
-  }, [selectedContent]);
-
-  useEffect(() => {
-    // console.log("selectedContent", selectedContent)
-  }, [selectedContent])
-
-
-  useEffect(() => {
-    if (selectedContent && selectedContent.id) {
-      const storedProgress = localStorage.getItem(`contentId-${selectedContent.id}`);
-      // console.log('Stored Video Progress on Mount:', storedProgress);
+    if (selectedContent && selectedContent.submenus) {
+      const storedProgress = localStorage.getItem(`contentId-${selectedContent.submenus.id}`);
       if (storedProgress) {
         setLoadingProgress(parseFloat(storedProgress));
       }
     }
   }, [selectedContent]);
-
-
 
   useEffect(() => {
     // Cleanup the interval when the component unmounts or when selectedContent changes
@@ -235,24 +285,28 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
     };
   }, [intervalId, selectedContent]);
 
-
-
-  const contentStyle = {
-    marginTop: '100px',
+  const saveFeedbackToLocalstorage = (feedbackData) => {
+    const storedFeedback = JSON.parse(localStorage.getItem('feedback')) || [];
+    storedFeedback.push(feedbackData);
+    localStorage.setItem('feedback', JSON.stringify(storedFeedback));
   };
 
   const progressBarStyle = {
     zIndex: 1,
   };
 
+  const linearGradientStyle = {
+    background: `linear-gradient(-180deg, #1D95C9 0%, #17759C 100%)`,
+  };
+
 
   return (
-    <div className="content" style={contentStyle}>
+    <div className="content">
       <div className="progress mb-3" style={progressBarStyle}>
         <div
           className="progress-bar progress-bar-striped progress-bar-animated"
           role="progressbar"
-          style={{ width: `${loadingProgress}%` }}
+          style={{ width: `${loadingProgress}%`, ...linearGradientStyle }}
           aria-valuenow={Math.round(loadingProgress)}
           aria-valuemin="0"
           aria-valuemax="100"
@@ -262,30 +316,24 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
       </div>
       {selectedContent && (
         <div className="selected-content">
-          {selectedContent ? (
-            selectedContent.type === 'image' ? (
-              <>
-                <img
-                  src={selectedContent.src}
-                  alt={selectedContent.name}
-                  id="selected-media"
-                  className="img-fluid"
-                />
-              </>
-            ) : selectedContent.type === 'video' ? (
-              <>
-                <video
-                  controls
-                  id="selected-media"
-
-                  onTimeUpdate={handleTimeUpdate}
-                  onLoadedMetadata={handleLoadForVideos}
-                >
-                  <source src={selectedContent.src} type="video/mp4" />
-                </video>
-              </>
-            ) : selectedContent.type === 'pdf' ? (
-              // Render PDF using @react-pdf-viewer/core
+          {selectedContent.submenus ? (
+            selectedContent.submenus.type === 'image' ? (
+              <img
+                src={selectedContent.submenus.src}
+                alt={selectedContent.submenus.name}
+                id="selected-media"
+                className="img-fluid"
+              />
+            ) : selectedContent.submenus.type === 'video' ? (
+              <video
+                controls
+                id="selected-media"
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadForVideos}
+              >
+                <source src={selectedContent.submenus.src} type="video/mp4" />
+              </video>
+            ) : selectedContent.submenus.type === 'pdf' ? (
               <div
                 style={{
                   border: '1px solid rgba(0, 0, 0, 0.3)',
@@ -294,7 +342,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
               >
                 <div id='selected-media'>
                   <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-                    <Viewer fileUrl={selectedContent.src} />
+                    <Viewer fileUrl={selectedContent.submenus.src} onPageChange={handlePageChange} />
                   </Worker>
                 </div>
               </div>
@@ -304,27 +352,37 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
           ) : null}
         </div>
       )}
+
       <div>
-        {/* Button placed after the content */}
-        <button
-          className="custom-btn btn-12"
+        <button className="notesButton" role="button"
           style={{
             position: 'fixed',
-            bottom: '21px',
-            right: '20px',
-            fontSize: '14px', // Adjust the font size
-            padding: '0px 0px', // Adjust the padding2
-            zIndex: 2
+            bottom: '10px',
+            fontSize: '16px',
+            padding: '0px 0px',
+            zIndex: 1
           }}
-          onClick={() => {
-            const contentId = selectedContent.id;
-            const contentName = selectedContent.name;
+          onClick={() => { openModal() }}
+        > <span>Notes</span></button>
+
+
+        <button className="button-43" role="button"
+          style={{
+            position: 'fixed',
+            bottom: '10px',
+            right: '8px',
+            fontSize: '16px',
+            padding: '0px 0px',
+            zIndex: 2
+          }} onClick={() => {
+            const contentId = selectedContent.submenus.id;
+            const contentName = selectedContent.submenus.name;
             Swal.fire({
               title: 'Feedback',
               html: `
                 
                   <div style="background: #FFF; padding: 2rem; max-width: 576px; width: 100%; border-radius: .75rem; box-shadow: 8px 8px 30px rgba(0,0,0,.05); text-align: center;">
-                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">${selectedContent.name}</h3>
+                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">${selectedContent.submenus.name}</h3>
                     <form action="#">
                     <div class="starrating risingstar  flex-row-reverse" style="display: flex; justify-content: center; align-items: center; grid-gap: .5rem; font-size: 2rem; color: #FFBD13; margin-bottom: 2rem;">
                     <input type="number" name="rating" hidden>
@@ -348,28 +406,22 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
               preConfirm: () => {
                 const rating = document.querySelector('input[name="rating"]:checked')?.value;
                 const opinion = document.querySelector('textarea[name="opinion"]').value;
-
-                // Do something with the feedback data
-                // console.log('Content ID:', contentId);
-                // console.log('Content Name:', contentName);
-                // console.log('Rating:', rating);
-                // console.log('Opinion:', opinion);
-                // You can store the feedback data or send it to a server here
-
-                // Return a Promise that resolves with the form data
-                return {
+                const feedbackData = {
                   contentId: contentId || null,
                   contentName: contentName || null,
                   rating: rating || null,
                   opinion: opinion || null,
                 };
+                saveFeedbackToLocalstorage(feedbackData);
+                return feedbackData;
+                // const storedFeedback = JSON.parse(localStorage.getItem('feedback')) || [];
               }
             });
           }}
         >
-          <span>Click!</span><span>Feedback</span></button>
+          <span>Feedback</span></button>
       </div>
-    </div>
+    </div >
   );
 };
 

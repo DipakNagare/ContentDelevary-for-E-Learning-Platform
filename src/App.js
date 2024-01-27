@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import './CSS/SideNav.css'; // Update the path accordingly
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -26,7 +25,11 @@ function App() {
   const handleSidebarToggle = () => {
     setSidebarOpen(!isSidebarOpen);
   };
-  const handleSublinkClick = (submenu) => {
+
+
+  const handleSublinkClick = (submenu,courseId, courseName, module) => {
+
+    
     // Check if the previous content is completed
     const previousContentId = submenu.id - 1;
     const storedProgress = localStorage.getItem(`contentId-${previousContentId}`);
@@ -34,11 +37,24 @@ function App() {
 
     // If the previous content is completed, proceed to the selected submenu
     if (submenu.id === 1 || isPreviousContentCompleted) {
-      console.log("submenu", submenu)
-      setSelectedContent(submenu);
+      const selectedContentData = {
+        courseId: courseId,
+        courseName: courseName,
+        moduleTitle: module?.title, 
+        submenus: {
+          id: submenu.id,
+          name: submenu.name,
+          type: submenu.type,
+          src: submenu.src, 
+          duration: submenu.duration,
+          seektime: submenu.seektime,
+        },
+      };
+      setSelectedContent(selectedContentData);
 
       // Save selectedContent to local storage
-      localStorage.setItem('selectedContent', JSON.stringify(submenu));
+      localStorage.setItem('selectedContent', JSON.stringify(selectedContentData));
+
 
     } else {
       // Display a SweetAlert modal when the previous content is not completed
@@ -109,6 +125,7 @@ function App() {
     } else {
       setSidebarOpen(false);
     }
+
     // Load initial selectedContent from local storage
     const storedContent = JSON.parse(localStorage.getItem('selectedContent'));
     setSelectedContent(storedContent);
@@ -122,7 +139,9 @@ function App() {
         handleSidebarToggle={handleSidebarToggle}
         handleDarkModeToggle={handleDarkModeToggle}
         setSelectedContent={setSelectedContent}
+        selectedContent={selectedContent}
         menuItems={MenuItems}
+        handleSublinkClick = {handleSublinkClick}
 
       />
       <div className={`wrapper ${!isSidebarOpen ? 'sidebar-open' : ''}`} style={{ padding: '15px' }}>

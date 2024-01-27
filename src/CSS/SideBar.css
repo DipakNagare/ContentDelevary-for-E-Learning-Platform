@@ -1,18 +1,21 @@
 /* Sidebar.css */
+body {
+  overflow: hidden;
+}
 
 .sidebar {
   background-color: whitesmoke; 
   width: 260px;
   position: fixed;
-  top: 70px;
+  top: 60px;
   left: 0;
   height: 100%;
   padding: 80px 0;
   z-index: 100;
   overflow-y: scroll;
-  box-shadow: 5px 0 10px #565759;
+  box-shadow: 5px 0 6px #2a2a2ac4;
   transition: all 0.5s ease;
-  
+
 }
 
 .tooltip-white-bg-dark-mode .tooltip-inner {
@@ -20,8 +23,9 @@
   color: #000000 !important;
 }
 
-.tooltip-white-bg-dark-mode .arrow::before {
+.tooltip-white-bg-dark-mode {
   border-top-color: #ffffff !important;
+
 }
 
 /* circuler progress bar eka line */
@@ -230,5 +234,11 @@
 
   .sidebar.close {
     display: none;
+  }
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .sidebar{
+    top: 50px;
   }
 }

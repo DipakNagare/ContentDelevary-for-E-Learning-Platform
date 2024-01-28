@@ -135,6 +135,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
           if (parseFloat(storedProgress) < 99) {
             markContentCompleted();
           }
+          
         });
       } else {
         // Start the video from the beginning if there is no stored progress

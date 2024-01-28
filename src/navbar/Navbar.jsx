@@ -6,7 +6,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import Swal from 'sweetalert2';
 
 
-const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDarkMode,selectedContent, setSelectedContent, menuItems, handleSublinkClick }) => {
+const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDarkMode, selectedContent, setSelectedContent, menuItems, handleSublinkClick }) => {
 
   const [currentSubMenuIndex, setCurrentSubMenuIndex] = useState(0);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
@@ -15,16 +15,16 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
     const currentModule = menuItems[currentSectionIndex]?.modules[currentSubMenuIndex];
     const currentSubMenu = currentModule?.submenus || [];
     const currentSubMenuId = selectedContent?.submenus?.id;
-  
+
     const currentIndex = currentSubMenu.findIndex(item => item.id === currentSubMenuId);
-  
+
     // Check if there's a next submenu in the current module
     if (currentIndex !== -1 && currentIndex < currentSubMenu.length - 1) {
       const nextContent = currentSubMenu[currentIndex + 1];
       const previousContentId = nextContent.id - 1;
       const storedProgress = localStorage.getItem(`contentId-${previousContentId}`);
       const isPreviousContentCompleted = storedProgress && parseFloat(storedProgress) > 99;
-  
+
       if (isPreviousContentCompleted || previousContentId === 0) {
         setSelectedContent(prevState => {
           const newState = {
@@ -45,7 +45,7 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
       // Check if there's a next module
       const nextModuleIndex = currentSubMenuIndex + 1;
       const nextModule = menuItems[currentSectionIndex]?.modules[nextModuleIndex];
-      
+
       if (nextModule) {
         const nextContent = nextModule.submenus[0];
         setSelectedContent(prevState => {
@@ -66,15 +66,15 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
       }
     }
   };
-  
-  
+
+
   const handlePreviousSubMenu = () => {
     const currentModule = menuItems[currentSectionIndex]?.modules[currentSubMenuIndex];
     const currentSubMenu = currentModule?.submenus || [];
     const currentSubMenuId = selectedContent?.submenus?.id;
-  
+
     const currentIndex = currentSubMenu.findIndex(item => item.id === currentSubMenuId);
-  
+
     // Check if there's a previous submenu in the current module
     if (currentIndex > 0) {
       const prevContent = currentSubMenu[currentIndex - 1];
@@ -90,7 +90,7 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
       // Check if there's a previous module
       const prevModuleIndex = currentSubMenuIndex - 1;
       const prevModule = menuItems[currentSectionIndex]?.modules[prevModuleIndex];
-      
+
       if (prevModule) {
         const prevContent = prevModule.submenus[prevModule.submenus.length - 1]; // Last submenu of the previous module
         setSelectedContent(prevState => {
@@ -110,11 +110,8 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
         });
       }
     }
-  };  
-  
-  
-  
-  
+  };
+
   const changeFontSize = (delta) => {
     const currentFontSize = parseInt(document.documentElement.style.fontSize) || 16;
 
@@ -177,41 +174,41 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
               className="btn btn-danger "
               style={{ marginRight: '10px' }}
               onClick={handlePreviousSubMenu}
-              >
+            >
               <i className="fas fa-caret-left fa-lg" style={{ width: '50px' }}></i>
             </button>
             <button type="button"
               className="btn btn-success"
               onClick={handleNextSubMenu}
               disabled={currentSubMenuIndex >= menuItems[currentSectionIndex]?.modules[currentSubMenuIndex]?.submenus.length - 1}
-              >
+            >
               <i className="fas fa-caret-right fa-lg" style={{ width: '50px' }}></i>
             </button>
           </div>
         </div>
       )}
-   
+
 
       {isMobileView && (
         <div className="row d-flex justify-content-center mt-3">
           <div className="col-6 col-md-3 ">
-          <div className="d-flex justify-content-center " style={{marginTop:'-9px', marginBottom: '0.4rem' }}>
-          <button type="button"
-            className="btn btn-danger justify-content-center "
-            style={{ marginRight: '10px', marginLeft: '6em', }}
-              onClick={handlePreviousSubMenu}
-            disabled={currentSubMenuIndex === 0}
-            >
-            <i className="fas fa-caret-left fa-lg" style={{ width: '50px' }}></i>
-          </button>
-          <button type="button"
-            className="btn btn-success"
-            onClick={handleNextSubMenu}
-            disabled={currentSubMenuIndex >= menuItems[currentSectionIndex]?.modules[currentSubMenuIndex]?.submenus.length - 1}
-            >
-            <i className="fas fa-caret-right fa-lg" style={{ width: '50px' }}></i>
-          </button>
-        </div>
+            <div className="d-flex justify-content-center " style={{ marginTop: '-9px', marginBottom: '0.4rem' }}>
+              <button type="button"
+                className="btn btn-danger "
+                style={{ marginRight: '10px', marginLeft: '6em', }}
+                onClick={handlePreviousSubMenu}
+              // disabled={currentSubMenuIndex === 0}
+              >
+                <i className="fas fa-caret-left fa-lg" style={{ width: '50px' }}></i>
+              </button>
+              <button type="button"
+                className="btn btn-success"
+                onClick={handleNextSubMenu}
+                disabled={currentSubMenuIndex >= menuItems[currentSectionIndex]?.modules[currentSubMenuIndex]?.submenus.length - 1}
+              >
+                <i className="fas fa-caret-right fa-lg" style={{ width: '50px' }}></i>
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import '../CSS/NoteApp.css'; // Create styles.css file and import it here
+import '../CSS/NoteApp.css'; // Import styles.css file here
 
 const NoteApp = ({ selectedContent }) => {
   const [stickiesArray, setStickiesArray] = useState([]);
 
   useEffect(() => {
     loadStartEvents();
-    const createFirstSticky = document.getElementById('createStickyBtn');
-    getStoredStickies(createFirstSticky);
+    getStoredStickies();
   }, [selectedContent]);
 
   const loadStartEvents = () => {
@@ -17,7 +16,7 @@ const NoteApp = ({ selectedContent }) => {
     deleteAllBtn.addEventListener('click', deleteAllStickies);
     createFirstSticky.addEventListener('click', createId);
 
-    getStoredStickies(createFirstSticky);
+    getStoredStickies();
   };
 
   const deleteAllStickies = () => {
@@ -44,46 +43,44 @@ const NoteApp = ({ selectedContent }) => {
     return noteKeys;
   };
 
-  const getStoredStickies = (createFirstSticky) => {
-    if (!createFirstSticky) return;
-
+  const getStoredStickies = () => {
     const noteKeys = getNoteKeys();
 
     if (noteKeys.length > 0) {
+      const createFirstSticky = document.getElementById('createStickyBtn');
       createFirstSticky.style.display = 'none';
-  
+
       const storedStickies = noteKeys.map((key) => {
         const storedItem = localStorage.getItem(key);
         return storedItem ? JSON.parse(storedItem) : null;
       });
-  
+
       const stickiesForSelectedContent = storedStickies.filter(
         (sticky) => sticky !== null && sticky.subMenus[0].SubmenuId === selectedContent?.submenus?.id
       );
-  
+
       setStickiesArray(stickiesForSelectedContent);
-  
+
       const main = document.getElementById('main');
       main.innerHTML = '';
-  
+
       stickiesForSelectedContent.forEach((sticky, index) => {
         if (sticky !== null) {
           addStoredStickiesToDom(sticky, noteKeys[index]);
         }
       });
     } else {
+      const createFirstSticky = document.getElementById('createStickyBtn');
       createFirstSticky.style.display = 'block';
     }
   };
-  
+
   const addStoredStickiesToDom = (stickyObject, key) => {
     const stickyClone = createSticky();
     stickyClone.setAttribute('id', key);
 
     if (stickyObject !== null) {
-      const stickyContent = Array.from(stickyClone.children).find(
-        (el) => el.className === 'sticky-content'
-      );
+      const stickyContent = stickyClone.querySelector('.sticky-content');
       if (stickyContent) {
         stickyContent.value = stickyObject.notes;
       }
@@ -118,56 +115,35 @@ const NoteApp = ({ selectedContent }) => {
     storeSticky({ target: stickyCloneContent });
   };
 
-  const createSticky = (stickyObject) => {
+  const createSticky = () => {
     const parent = document.getElementById('main');
     const sticky = document.querySelector('.sticky');
     const stickyClone = sticky.cloneNode(true);
     parent.appendChild(stickyClone);
     stickyClone.style.display = 'block';
 
-    const bulletListBtn = Array.from(
-      Array.from(stickyClone.children).filter((el) => el.className === 'sticky-header')[0].children
-    ).filter((el) => el.classList.contains('fa-list-ul'))[0];
+    const bulletListBtn = stickyClone.querySelector('.fa-list-ul');
     bulletListBtn.addEventListener('click', createBulletList);
 
-    const newAddBtn = Array.from(
-      Array.from(stickyClone.children).filter((el) => el.className === 'sticky-header')[0].children
-    ).filter((el) => el.classList.contains('add-button'))[0];
+    const newAddBtn = stickyClone.querySelector('.add-button');
     newAddBtn.addEventListener('click', createId);
 
-    const removeBtn = Array.from(
-      Array.from(stickyClone.children).filter((el) => el.className === 'sticky-header')[0].children
-    ).filter((el) => el.classList.contains('remove-button'))[0];
+    const removeBtn = stickyClone.querySelector('.remove-button');
     removeBtn.addEventListener('click', deleteSticky);
 
-    const dropBtn = Array.from(
-      Array.from(stickyClone.children).filter((el) => el.className === 'sticky-header')[0].children
-    ).filter((el) => el.classList.contains('drop-button'))[0];
-    dropBtn.addEventListener('click', toggleDropMenuClick);
-
-    const stickyCloneContent = Array.from(stickyClone.children).filter(
-      (el) => el.className === 'sticky-content'
-    )[0];
-
-    if (stickyObject !== undefined) {
-      stickyCloneContent.value = stickyObject.notes;
-      const event = new Event('change', { bubbles: true });
-      stickyCloneContent.dispatchEvent(event);
-    }
-
+    const stickyCloneContent = stickyClone.querySelector('.sticky-content');
     stickyCloneContent.addEventListener('change', storeSticky);
     stickyCloneContent.addEventListener('input', notSavedNotification);
 
     return stickyClone;
   };
 
-  const createId = (e) => {
-    if (e.target.id === 'createStickyBtn') {
-      e.target.style.display = 'none';
-    }
+  const createId = () => {
+    const createFirstSticky = document.getElementById('createStickyBtn');
+    createFirstSticky.style.display = 'none';
 
-    const currentDate = new Date();
-    const key = `sticky_${currentDate.getTime()}_${selectedContent.submenus.id}`;
+    // const currentDate = new Date();
+    const key = `sticky_${selectedContent.submenus.id}`;
 
     const stickyClone = createSticky();
     stickyClone.setAttribute('id', key);
@@ -216,14 +192,6 @@ const NoteApp = ({ selectedContent }) => {
     sticky.parentNode.removeChild(sticky);
   };
 
-  const toggleDropMenuClick = (e) => {
-    const parentId = e.target.parentNode.parentNode.id;
-    const stickyContent = document.querySelector(`#${parentId} .sticky-content`);
-    const dropMenu = document.querySelector(`#${parentId} .dropdown-content-hide`);
-    dropMenu.style.display !== 'flex'
-      ? (dropMenu.style.display = 'flex')
-      : (dropMenu.style.display = 'none');
-  };
 
   const convertToBulletedList = (text) => {
     const lines = text.split('\n');
@@ -260,7 +228,7 @@ const NoteApp = ({ selectedContent }) => {
 
     localStorage.setItem(`stickiesArray_${selectedContent.submenus.id}`, JSON.stringify(stickiesArray));
 
-    const notSaved = document.querySelector(`#${key} .notSaved`);
+    const notSaved = sticky.querySelector('.notSaved');
     notSaved.style.display = 'inline-block';
     notSaved.style.color = 'black';
     notSaved.title = 'saved';

@@ -287,15 +287,15 @@ body {
 @media (max-width: 720px) {
   .sticky {
     line-height: 1.2;
-    width: 130px;
-    min-height: 145px;
+    width: 250px;
+    min-height: 300px;
     margin: 15px;
   }
 
   .sticky-content {
-    width: 130px;
-    min-height: 115px;
-    font-size: 14px;
+    width: 250px;
+    min-height: 200px;
+    font-size: 18px;
   }
 
   .dropdown-content-hide {

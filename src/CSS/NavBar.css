@@ -26,8 +26,11 @@
   font-size: 1px;
 }
 .btn-zoom-init{
-margin-top: 6px;
-
+margin-top: 2px;
+}
+.zoom-out{
+  margin-top: 1px;
+  margin-left: 6px;
 }
 .zoom-buttons-container i {
   cursor: pointer;

@@ -156,7 +156,7 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
     <nav className="navbar">
       <div className="logo_item">
         <i className={`bx bx-menu ${isSidebarOpen ? 'open' : ''}`} onClick={handleSidebarToggle}></i>
-        {isMobileView ? <span>Content Dilevery</span> : <span>Content Dilevery</span>}
+        {isMobileView ? <span>Course_Name</span> : <span>Course_Name</span>}
       </div>
 
       {isMobileView && (
@@ -221,7 +221,7 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
               <i>A<sup>+</sup></i>
             </a>
             <a className="btn-zoom-init" onClick={handleZoomInit}>
-              <i className="fas fa-recycle"></i>
+              <i>A</i>
             </a>
             <a className="btn zoom-out" onClick={handleZoomOut}>
               <i>A<sup>-</sup></i>

@@ -28,7 +28,6 @@ function App() {
 
 
   const handleSublinkClick = (submenu,courseId, courseName, module) => {
-
     
     // Check if the previous content is completed
     const previousContentId = submenu.id - 1;
@@ -41,6 +40,7 @@ function App() {
         courseId: courseId,
         courseName: courseName,
         moduleTitle: module?.title, 
+        moduleId : module?.id,
         submenus: {
           id: submenu.id,
           name: submenu.name,

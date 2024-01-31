@@ -7,45 +7,49 @@ import '../CSS/FeedBackTemplate.css'
 import Swal from 'sweetalert2';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
 import '@react-pdf-viewer/core/lib/styles/index.css';
-import { Modal } from 'react-bootstrap';
+import { Modal, Button } from 'react-bootstrap'; // Import Modal and Button
 import NotesApp from '../notesApp/NotesApp';
 import { createRoot } from 'react-dom/client';
 
 
 const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loadingProgress, setLoadingProgress }) => {
-  const didOpen = () => {
-    // Render the NotesApp component inside the modal using createRoot
-    const notesAppContainer = document.getElementById('notes-app-container');
-    const root = createRoot(notesAppContainer); // Updated usage of createRoot
-    
-    root.render(
-      <React.StrictMode>
-        <NotesApp selectedContent={selectedContent} />
-      </React.StrictMode>
-    );
-  };
-
   const [isUserInteracting, setIsUserInteracting] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false); // State to control the visibility of the feedback modal
+  const [feedbackData, setFeedbackData] = useState({}); // State to store feedback data
+  const handleCloseModal = () => setShowModal(false); // Function to close modal
+  const handleOpenModal = () => setShowModal(true); // Function to open modal
   let intervalId;
 
-  const openModal = () => {
-    Swal.fire({
-      title: 'Note App',
-      html: '<div id="notes-app-container"></div>',
-      showCloseButton: true,
-      showCancelButton: false,
-      focusConfirm: false,
-      confirmButtonText: 'Close',
-      backdrop: `rgba(0,0,0,0.8)`,
-      width: '100%',
-      preConfirm: () => {
-      },
-      didOpen,
-      
-    });
+  // Function to handle opening the feedback modal
+  const openFeedbackModal = () => {
+    setShowFeedbackModal(true);
   };
 
+  // Function to handle closing the feedback modal
+  const closeFeedbackModal = () => {
+    setShowFeedbackModal(false);
+  };
+
+  const handleFeedbackSubmit = () => {
+    const contentId = selectedContent.submenus.id;
+    const contentName = selectedContent.submenus.name;
+    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+    const opinion = document.querySelector('textarea[name="opinion"]').value;
+    // Save feedback to localStorage
+    const storedFeedback = JSON.parse(localStorage.getItem('feedback')) || [];
+    const newFeedback = {
+      contentId,
+      contentName,
+      rating,
+      opinion
+    };
+    storedFeedback.push(newFeedback);
+    localStorage.setItem('feedback', JSON.stringify(storedFeedback));
+    // console.log('Feedback Submitted and Stored:', newFeedback);
+    setShowFeedbackModal(false);
+  };
 
   const handlePageChange = (page) => {
     console.log('Current Page:', page.currentPage + 1);
@@ -135,7 +139,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
           if (parseFloat(storedProgress) < 99) {
             markContentCompleted();
           }
-          
+
         });
       } else {
         // Start the video from the beginning if there is no stored progress
@@ -286,12 +290,6 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
     };
   }, [intervalId, selectedContent]);
 
-  const saveFeedbackToLocalstorage = (feedbackData) => {
-    const storedFeedback = JSON.parse(localStorage.getItem('feedback')) || [];
-    storedFeedback.push(feedbackData);
-    localStorage.setItem('feedback', JSON.stringify(storedFeedback));
-  };
-
   const progressBarStyle = {
     zIndex: 1,
   };
@@ -353,7 +351,6 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
           ) : null}
         </div>
       )}
-
       <div>
         <button className="notesButton" role="button"
           style={{
@@ -363,8 +360,22 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
             padding: '0px 0px',
             zIndex: 1
           }}
-          onClick={() => { openModal() }}
+          onClick={handleOpenModal}
         > <span>Notes</span></button>
+
+        <Modal show={showModal} onHide={handleCloseModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Note App</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <NotesApp selectedContent={selectedContent} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
 
         <button className="button-43" role="button"
@@ -375,52 +386,43 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
             fontSize: '16px',
             padding: '0px 0px',
             zIndex: 2
-          }} onClick={() => {
-            const contentId = selectedContent.submenus.id;
-            const contentName = selectedContent.submenus.name;
-            Swal.fire({
-              title: 'Feedback',
-              html: `
-                
-                  <div style="background: #FFF; padding: 2rem; max-width: 576px; width: 100%; border-radius: .75rem; box-shadow: 8px 8px 30px rgba(0,0,0,.05); text-align: center;">
-                    <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1rem;">${selectedContent.submenus.name}</h3>
-                    <form action="#">
-                    <div class="starrating risingstar  flex-row-reverse" style="display: flex; justify-content: center; align-items: center; grid-gap: .5rem; font-size: 2rem; color: #FFBD13; margin-bottom: 2rem;">
-                    <input type="number" name="rating" hidden>
-                    <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 star"></label>
-                    <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 star"></label>
-                    <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 star"></label>
-                    <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 star"></label>
-                    <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star"></label>
-                        </div>
-                      <textarea style="width: 100%; background: #F5F5F5; padding: 1rem; border-radius: .5rem; border: none; outline: none; resize: none; margin-bottom: .5rem;" name="opinion" cols="30" rows="5" placeholder="Your opinion..."></textarea>
-                     
-                    </form>
-                  </div>
-                `,
-              showCloseButton: true,
-              showCancelButton: false,
-              focusConfirm: false,
-              confirmButtonText: 'Submit',
-              cancelButtonText: 'Cancel',
-              backdrop: `rgba(0,0,0,0.8)`,
-              preConfirm: () => {
-                const rating = document.querySelector('input[name="rating"]:checked')?.value;
-                const opinion = document.querySelector('textarea[name="opinion"]').value;
-                const feedbackData = {
-                  contentId: contentId || null,
-                  contentName: contentName || null,
-                  rating: rating || null,
-                  opinion: opinion || null,
-                };
-                saveFeedbackToLocalstorage(feedbackData);
-                return feedbackData;
-                // const storedFeedback = JSON.parse(localStorage.getItem('feedback')) || [];
-              }
-            });
           }}
-        >
-          <span>Feedback</span></button>
+          onClick={() => openFeedbackModal()}>
+
+          <span>Feedback</span>
+        </button>
+        <Modal show={showFeedbackModal} onHide={closeFeedbackModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Feedback</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {/* Check if selectedContent exists and has submenus property before rendering */}
+            {selectedContent && selectedContent.submenus && (
+              <div style={{ background: '#FFF', padding: '2rem', maxWidth: '576px', width: '100%', borderRadius: '.75rem', boxShadow: '8px 8px 30px rgba(0,0,0,.05)', textAlign: 'center' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1rem' }}>{selectedContent.submenus.name}</h3>
+                <form>
+                  <div className="starrating risingstar flex-row-reverse" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gridGap: '.5rem', fontSize: '2rem', color: '#FFBD13', marginBottom: '2rem' }}>
+                    <input type="number" name="rating" hidden />
+                    <input type="radio" id="star5" name="rating" value="5" /><label htmlFor="star5" title="5 star"></label>
+                    <input type="radio" id="star4" name="rating" value="4" /><label htmlFor="star4" title="4 star"></label>
+                    <input type="radio" id="star3" name="rating" value="3" /><label htmlFor="star3" title="3 star"></label>
+                    <input type="radio" id="star2" name="rating" value="2" /><label htmlFor="star2" title="2 star"></label>
+                    <input type="radio" id="star1" name="rating" value="1" /><label htmlFor="star1" title="1 star"></label>
+                  </div>
+                  <textarea style={{ width: '100%', background: '#F5F5F5', padding: '1rem', borderRadius: '.5rem', border: 'none', outline: 'none', resize: 'none', marginBottom: '.5rem' }} name="opinion" cols="30" rows="5" placeholder="Your opinion..."></textarea>
+                </form>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={closeFeedbackModal}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={handleFeedbackSubmit}>
+              Submit
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
     </div >
   );

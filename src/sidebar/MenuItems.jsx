@@ -19,9 +19,10 @@ const MenuItems = [
     modules: [
       {
         title: 'Home',
+        id: 1,
         icon: 'bx-grid-alt',
         submenus: [
-          { id: 1, name: "Images1Images1Images11", type: 'image', src: image1, duration: 20, seektime: null },
+          { id: 1, name: "Images1Images1Images11", type: 'image', src: image1, duration: 20, seektime: null},
           { id: 2, name: "video1", type: 'video', src: Video1, duration: null, seektime: null },
           { id: 3, name: "Images2", type: 'image', src: image2, duration: 3, seektime: null },
           { id: 4, name: "video2", type: 'video', src: Video2, duration: null, seektime: null },
@@ -34,6 +35,7 @@ const MenuItems = [
       },
       {
         title: 'Overview',
+        id: 2,
         icon: 'bx-grid-alt',
         submenus: [
           { id: 9, name: "Images1", type: 'image', src: image1, duration: 20, seektime: null },

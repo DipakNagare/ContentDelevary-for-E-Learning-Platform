@@ -16,6 +16,8 @@ function App() {
   const [isDarkMode, setDarkMode] = useState(false);
   const [selectedContent, setSelectedContent] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
+  const [expandAllSubmenus, setExpandAllSubmenus] = useState(false);
 
 
 
@@ -27,8 +29,8 @@ function App() {
   };
 
 
-  const handleSublinkClick = (submenu,courseId, courseName, module) => {
-    
+  const handleSublinkClick = (submenu, courseId, courseName, module) => {
+
     // Check if the previous content is completed
     const previousContentId = submenu.id - 1;
     const storedProgress = localStorage.getItem(`contentId-${previousContentId}`);
@@ -39,13 +41,13 @@ function App() {
       const selectedContentData = {
         courseId: courseId,
         courseName: courseName,
-        moduleTitle: module?.title, 
-        moduleId : module?.id,
+        moduleTitle: module?.title,
+        moduleId: module?.id,
         submenus: {
           id: submenu.id,
           name: submenu.name,
           type: submenu.type,
-          src: submenu.src, 
+          src: submenu.src,
           duration: submenu.duration,
           seektime: submenu.seektime,
         },
@@ -69,6 +71,8 @@ function App() {
   const handleSidebarCollapse = () => {
     setSidebarOpen(true);
     setSidebarHoverable(true);
+    setActiveSubmenu(null); // Collapse all manually expanded submenus
+    setExpandAllSubmenus(false); // Collapse all submenus
   };
 
   const handleSidebarExpand = () => {
@@ -141,7 +145,7 @@ function App() {
         setSelectedContent={setSelectedContent}
         selectedContent={selectedContent}
         menuItems={MenuItems}
-        handleSublinkClick = {handleSublinkClick}
+        handleSublinkClick={handleSublinkClick}
 
       />
       <div className={`wrapper ${!isSidebarOpen ? 'sidebar-open' : ''}`} style={{ padding: '15px' }}>
@@ -156,6 +160,10 @@ function App() {
           loadingProgress={loadingProgress}
           selectedContent={selectedContent}
           setLoadingProgress={setLoadingProgress}
+          activeSubmenu={activeSubmenu} 
+          setActiveSubmenu={setActiveSubmenu} 
+          expandAllSubmenus={expandAllSubmenus} 
+          setExpandAllSubmenus={setExpandAllSubmenus} 
 
         />
         <ContentView

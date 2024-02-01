@@ -11,6 +11,66 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
   const [currentSubMenuIndex, setCurrentSubMenuIndex] = useState(0);
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768); // Assume mobile view for screens <= 768px width
+  const [originalFontSizes, setOriginalFontSizes] = useState({});
+  const MAX_ZOOM_IN_SIZE = 30; // Define maximum font size for zoom in
+  const MIN_ZOOM_OUT_SIZE = 10; // Define minimum font size for zoom out
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobileView(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Store original font sizes when component mounts
+    const elements = document.getElementsByClassName('text-zoom');
+    const fontSizes = {};
+    Array.from(elements).forEach((element, index) => {
+      const fontSize = window.getComputedStyle(element).getPropertyValue('font-size');
+      const id = `text-zoom-${index}`;
+      element.id = id;
+      fontSizes[id] = fontSize;
+    });
+    setOriginalFontSizes(fontSizes);
+  }, []);
+  const handleZoomIn = () => {
+    const elements = document.getElementsByClassName('text-zoom');
+    Array.from(elements).forEach(element => {
+      const currentSize = parseFloat(window.getComputedStyle(element).getPropertyValue('font-size'));
+      if (currentSize < MAX_ZOOM_IN_SIZE) {
+        const newSize = currentSize + 1;
+        element.style.fontSize = `${newSize}px`;
+      }
+    });
+  };
+  
+  const handleZoomOut = () => {
+    const elements = document.getElementsByClassName('text-zoom');
+    Array.from(elements).forEach(element => {
+      const currentSize = parseFloat(window.getComputedStyle(element).getPropertyValue('font-size'));
+      if (currentSize > MIN_ZOOM_OUT_SIZE) {
+        const newSize = currentSize - 1;
+        element.style.fontSize = `${newSize}px`;
+      }
+    });
+  };
+
+  const handleZoomInit = () => {
+    // Reset font sizes to original values
+    Object.keys(originalFontSizes).forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.fontSize = originalFontSizes[id];
+      }
+    });
+  };
+
   const handleNextSubMenu = () => {
     const currentModule = menuItems[currentSectionIndex]?.modules[currentSubMenuIndex];
     const currentSubMenu = currentModule?.submenus || [];
@@ -111,50 +171,9 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
       }
     }
   };
-
-  const changeFontSize = (delta) => {
-    const currentFontSize = parseInt(document.documentElement.style.fontSize) || 16;
-
-    // Calculate the new font size
-    const newFontSize = currentFontSize + delta;
-
-    // Set a maximum font size limit
-    const maxFontSize = 18; // Adjust this value as needed
-    const minFontSize = 13;
-
-
-    if (newFontSize >= minFontSize && newFontSize <= maxFontSize) {
-      document.documentElement.style.fontSize = `${newFontSize}px`;
-    };
-  }
-  const handleZoomIn = () => {
-    changeFontSize(1);
-  };
-
-  const handleZoomOut = () => {
-    changeFontSize(-1);
-  };
-
-  const handleZoomInit = () => {
-    document.documentElement.style.fontSize = '16px'; // Reset font size to default
-  };
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-
   return (
     <nav className="navbar">
-      <div className="logo_item">
+      <div className="logo_item text-zoom">
         <i className={`bx bx-menu ${isSidebarOpen ? 'open' : ''}`} onClick={handleSidebarToggle}></i>
         {isMobileView ? <span>Course_Name</span> : <span>Course_Name</span>}
       </div>
@@ -172,17 +191,17 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
           <div className="d-flex justify-content-center">
             <button type="button"
               className="btn btn-danger "
-              style={{ marginRight: '10px' }}
+              style={{ marginRight: '30px' }}
               onClick={handlePreviousSubMenu}
             >
-              <i className="fas fa-caret-left fa-lg" style={{ width: '50px' }}></i>
+              <i className="fas fa-caret-left fa-lg" style={{ width: '100px' }}></i>
             </button>
             <button type="button"
               className="btn btn-success"
               onClick={handleNextSubMenu}
               disabled={currentSubMenuIndex >= menuItems[currentSectionIndex]?.modules[currentSubMenuIndex]?.submenus.length - 1}
             >
-              <i className="fas fa-caret-right fa-lg" style={{ width: '50px' }}></i>
+              <i className="fas fa-caret-right fa-lg" style={{ width: '100px' }}></i>
             </button>
           </div>
         </div>
@@ -195,18 +214,18 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
             <div className="d-flex justify-content-center " style={{ marginTop: '-9px', marginBottom: '0.4rem' }}>
               <button type="button"
                 className="btn btn-danger "
-                style={{ marginRight: '10px', marginLeft: '6em', }}
+                style={{ marginRight: '10px', marginLeft: '3em', }}
                 onClick={handlePreviousSubMenu}
               // disabled={currentSubMenuIndex === 0}
               >
-                <i className="fas fa-caret-left fa-lg" style={{ width: '50px' }}></i>
+                <i className="fas fa-caret-left fa-lg" style={{ width: '100px' }}></i>
               </button>
               <button type="button"
                 className="btn btn-success"
                 onClick={handleNextSubMenu}
                 disabled={currentSubMenuIndex >= menuItems[currentSectionIndex]?.modules[currentSubMenuIndex]?.submenus.length - 1}
               >
-                <i className="fas fa-caret-right fa-lg" style={{ width: '50px' }}></i>
+                <i className="fas fa-caret-right fa-lg" style={{ width: '100px' }}></i>
               </button>
             </div>
           </div>
@@ -216,14 +235,14 @@ const Navbar = ({ isSidebarOpen, handleSidebarToggle, handleDarkModeToggle, isDa
       {!isMobileView && (
         <div className="navbar_content">
           <i className="bi bi-grid"></i>
-          <div className="zoom-buttons-container">
-            <a className="btn zoom" onClick={handleZoomIn}>
+          <div className="zoom-buttons-container text-zoom">
+            <a className="btn zoom-in text-zoom" onClick={handleZoomIn}>
               <i>A<sup>+</sup></i>
             </a>
-            <a className="btn-zoom-init" onClick={handleZoomInit}>
+            <a className="btn zoom-init text-zoom" onClick={handleZoomInit}>
               <i>A</i>
             </a>
-            <a className="btn zoom-out" onClick={handleZoomOut}>
+            <a className="btn zoom-out text-zoom" onClick={handleZoomOut}>
               <i>A<sup>-</sup></i>
             </a>
           </div>

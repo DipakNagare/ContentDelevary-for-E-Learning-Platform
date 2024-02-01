@@ -301,7 +301,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
 
   return (
     <div className="content">
-      <div className="progress mb-3" style={progressBarStyle}>
+      <div className="progress mb-3 " style={progressBarStyle}>
         <div
           className="progress-bar progress-bar-striped progress-bar-animated"
           role="progressbar"
@@ -310,7 +310,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
           aria-valuemin="0"
           aria-valuemax="100"
         >
-          {Math.round(loadingProgress)}%
+          <span className='text-zoom'> {Math.round(loadingProgress)}%</span>
         </div>
       </div>
       {selectedContent && (
@@ -361,9 +361,9 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
             zIndex: 1
           }}
           onClick={handleOpenModal}
-        > <span>Notes</span></button>
+        > <span className='text-zoom'> Notes</span></button>
 
-        <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal show={showModal} onHide={handleCloseModal} >
           <Modal.Header closeButton>
             <Modal.Title>Note App</Modal.Title>
           </Modal.Header>
@@ -389,7 +389,7 @@ const ContentView = ({ selectedContent, isSidebarOpen, markContentCompleted, loa
           }}
           onClick={() => openFeedbackModal()}>
 
-          <span>Feedback</span>
+          <span className='text-zoom'>Feedback</span>
         </button>
         <Modal show={showFeedbackModal} onHide={closeFeedbackModal}>
           <Modal.Header closeButton>

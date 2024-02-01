@@ -7,7 +7,7 @@ body {
   background-color: whitesmoke; 
   width: 260px;
   position: fixed;
-  top: 60px;
+  top: 0px;
   left: 0;
   height: 100%;
   padding: 80px 0;
@@ -28,9 +28,9 @@ body {
 
 }
 
-/* circuler progress bar eka line */
+
 .nav_link {
-  justify-content:space-between; /* Align circular progress bar to the right */
+  justify-content:space-between; 
 
 }
 .sidebar.close {
@@ -44,7 +44,7 @@ body {
 
 .menu_content {
   position: relative;
-  margin-top: -50px;
+  margin-top: 10px;
   
 }
 
@@ -223,7 +223,7 @@ body {
 @media screen and (max-width: 767px) {
   .sidebar {
     display: block;
-    top: 85px;
+    top: 10px;
     transition: all 0.5s ease;
 
   }
@@ -239,6 +239,6 @@ body {
 
 @media (max-width: 768px) and (orientation: landscape) {
   .sidebar{
-    top: 50px;
+    top: -30px;
   }
 }

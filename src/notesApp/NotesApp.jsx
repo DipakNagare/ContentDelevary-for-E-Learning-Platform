@@ -6,27 +6,30 @@ const NoteApp = ({ selectedContent }) => {
   const [notesArray, setNotesArray] = useState([]);
 
   useEffect(() => {
+    const createFirstSticky = document.getElementById('createStickyBtn');
     loadStartEvents();
-    displayStoredStickies(); 
+    displayStoredStickies();
+    createId(); // Add this line to create a sticky note when component mounts
   }, [selectedContent]);
 
- const addStoredStickiesToDom = (stickyObject, key) => {
-  const stickyClone = createSticky();
-  stickyClone.setAttribute('id', key);
+  const addStoredStickiesToDom = (stickyObject, key) => {
+    const stickyClone = createSticky();
+    stickyClone.setAttribute('id', key);
 
-  const stickyContent = stickyClone.querySelector('.sticky-content');
-  if (stickyContent) {
-    stickyContent.value = stickyObject?.notes || '' }
+    const stickyContent = stickyClone.querySelector('.sticky-content');
+    if (stickyContent) {
+      stickyContent.value = stickyObject?.notes || ''
+    }
 
-  const main = document.getElementById('main');
-  main.appendChild(stickyClone);
-};
+    const main = document.getElementById('main');
+    main.appendChild(stickyClone);
+  };
 
-  
+
   const displayStoredStickies = () => {
     const storedStickies = getStickiesArray();
     const selectedContentId = selectedContent.submenus.id;
-  
+
     storedStickies.forEach((course) => {
       course.modules.forEach((module) => {
         module.contents.forEach((content) => {
@@ -42,7 +45,7 @@ const NoteApp = ({ selectedContent }) => {
       });
     });
   };
-  
+
 
   const loadStartEvents = () => {
     const createFirstSticky = document.getElementById('createStickyBtn');
@@ -54,20 +57,20 @@ const NoteApp = ({ selectedContent }) => {
 
   const deleteAllStickies = () => {
     const parent = document.getElementById('main');
-  
+
     const noteKeys = getNoteKeys();
-  
+
     noteKeys.forEach((key) => localStorage.removeItem(key));
     noteKeys.forEach((key) => removeStickyFromDOM(key));
-  
+
     setNotesArray([]);
-  
+
     const createFirstSticky = document.getElementById('createStickyBtn');
     if (parent.children.length <= 2) {
       createFirstSticky.style.display = 'block';
     }
   };
-  
+
 
   const getNoteKeys = () => {
     const allKeys = Object.keys(localStorage);
@@ -188,7 +191,7 @@ const NoteApp = ({ selectedContent }) => {
 
   const deleteSticky = (e) => {
     const key = e.target.parentNode.parentNode.id;
-  
+
     Swal.fire({
       title: 'Are you sure?',
       text: 'You will not be able to recover this sticky!',
@@ -202,7 +205,7 @@ const NoteApp = ({ selectedContent }) => {
     }).then((result) => {
       if (result.isConfirmed) {
         const stickiesArray = getStickiesArray();
-  
+
         // Find the index of the note to delete
         const indexToDelete = stickiesArray.findIndex(course =>
           course.modules.some(module =>
@@ -211,7 +214,7 @@ const NoteApp = ({ selectedContent }) => {
             )
           )
         );
-  
+
         if (indexToDelete !== -1) {
           const course = stickiesArray[indexToDelete];
           const updatedModules = course.modules.map(module => ({
@@ -224,31 +227,31 @@ const NoteApp = ({ selectedContent }) => {
               };
             })
           }));
-  
+
           // Check if any content has no notes left after deletion
           updatedModules.forEach(module => {
             module.contents = module.contents.filter(content =>
               content.Notes.length > 0
             );
-  
+
             // Remove the entire content if it becomes empty after deletion
             module.contents = module.contents.filter(content =>
               content.Notes.length > 0
             );
           });
-  
+
           // Check if any module has no contents left after deletion
           updatedModules.forEach(module => {
             module.contents = module.contents.filter(content =>
               content.Notes.length > 0
             );
-  
+
             // Remove the entire module if it becomes empty after deletion
             if (module.contents.length === 0) {
               delete course.modules[module];
             }
           });
-  
+
           // Update the course with updated modules
           const updatedCourse = {
             ...course,
@@ -256,25 +259,25 @@ const NoteApp = ({ selectedContent }) => {
               module.contents.length > 0
             )
           };
-  
+
           const updatedStickiesArray = [
             ...stickiesArray.slice(0, indexToDelete),
             updatedCourse,
             ...stickiesArray.slice(indexToDelete + 1)
           ];
-  
+
           localStorage.setItem(`Notes_Array`, JSON.stringify(updatedStickiesArray));
         }
-  
+
         // Remove the note from localStorage
         localStorage.removeItem(key);
-  
+
         // Remove the note from the DOM
         removeStickyFromDOM(key);
-  
+
         // Update state to reflect the deletion
         setNotesArray(prevNotes => prevNotes.filter(note => note.id !== key));
-  
+
         Swal.fire(
           'Deleted!',
           'Your sticky has been deleted.',
@@ -283,7 +286,7 @@ const NoteApp = ({ selectedContent }) => {
       }
     });
   };
-  
+
   const removeStickyFromDOM = (key) => {
     const sticky = document.getElementById(key);
     if (sticky) {
@@ -359,7 +362,8 @@ const NoteApp = ({ selectedContent }) => {
       <header id="header">
         <nav id="navbar">
           <ul>
-            <li id="deleteAll">Create Notes</li>  
+          <li id="createSticky" onClick={createId} style={{ fontSize: '30px' }}><i className='fas fa-plus-circle'></i></li>
+            <li id="deleteAll"></li>
           </ul>
         </nav>
       </header>
@@ -368,7 +372,6 @@ const NoteApp = ({ selectedContent }) => {
           <div className="sticky-header">
             <span className="sticky-header-menu add-button fas fa-plus" title="new sticky"></span>
             <span className="sticky-header-menu notSaved fas fa-check" title="not saved"></span>
-            <span className="sticky-header-menu drop-button fas fa-paint-brush" title="change color"></span>
             <span className="sticky-header-menu add-button fas fa-list-ul" title="new bullet list"></span>
             <div className="dropdown-content-hide">
               {/* Removed color options */}

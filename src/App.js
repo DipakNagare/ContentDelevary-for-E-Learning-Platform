@@ -30,6 +30,7 @@ function App() {
 
 
   const handleSublinkClick = (submenu, courseId, courseName, module) => {
+    console.log('Submenu clicked:', submenu.name);
 
     // Check if the previous content is completed
     const previousContentId = submenu.id - 1;

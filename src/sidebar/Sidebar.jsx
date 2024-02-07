@@ -7,30 +7,35 @@ import '../CSS/SideBar.css';
 
 const Sidebar = ({ isSidebarOpen, isSidebarHoverable, handleSidebarCollapse, handleSidebarExpand, menuItems, handleSublinkClick, selectedContent, isDarkMode, activeSubmenu, setActiveSubmenu, expandAllSubmenus, setExpandAllSubmenus }) => {
 
+  // console.log("menuItemLeght_____" + menuItems[0].modules.length);
+  const [devesh, setDevesh] = useState(new Array(menuItems[0].modules.length).fill(1));
+  // const [devesh, setDevesh] = useState([1,1,1]);
+
   const toggleSubmenu = (index) => {
     if (expandAllSubmenus) {
-      // If all submenus are expanded, collapse all manually expanded submenus
       setActiveSubmenu(activeSubmenu === index ? null : index);
+      devesh[index] = !devesh[index];
     } else {
       // If not all submenus are expanded, toggle the submenu as usual
       setActiveSubmenu(activeSubmenu === index ? null : index);
     }
   };
-  
 
   const toggleExpandAllSubmenus = () => {
+    setDevesh(new Array(menuItems[0].modules.length).fill(1));
     setActiveSubmenu(null);
     setExpandAllSubmenus(!expandAllSubmenus);
+    
   };
 
-  const tooltipMessage = expandAllSubmenus ? 'Expand all modules' :'Collapse all modules';
+  const tooltipMessage = expandAllSubmenus ? 'Expand all modules' : 'Collapse all modules';
 
   return (
     <nav className={`sidebar ${isSidebarOpen ? 'close' : ''} ${isSidebarHoverable ? 'hoverable' : ''}`}>
       <div className="container-fluid text-zoom">
         <div className="row">
           <div className="col-12 menu_content">
-          <OverlayTrigger
+            <OverlayTrigger
               placement="right"
               overlay={
                 <Tooltip id="expand-tooltip" className={isDarkMode ? 'tooltip-white-bg-dark-mode' : ''}>
@@ -54,7 +59,7 @@ const Sidebar = ({ isSidebarOpen, isSidebarHoverable, handleSidebarCollapse, han
                     >
                       <a
                         href="#"
-                        className={`nav_link submenu_item ${expandAllSubmenus || activeSubmenu === moduleIndex ? 'show_submenu' : ''}`}
+                        className={`nav_link submenu_item ${devesh[moduleIndex]  && (activeSubmenu === moduleIndex || expandAllSubmenus) ? 'show_submenu' : ''}`}
                         onClick={() => toggleSubmenu(moduleIndex)}
                       >
                         <div className="navlink_content">

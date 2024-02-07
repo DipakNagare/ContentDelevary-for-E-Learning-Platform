@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../CSS/NoteApp.css'; // Import styles.css file here
 import Swal from 'sweetalert2';
+import { Toaster, toast } from 'react-hot-toast';
 
 const NoteApp = ({ selectedContent }) => {
   const [notesArray, setNotesArray] = useState([]);
@@ -131,6 +132,11 @@ const NoteApp = ({ selectedContent }) => {
   };
 
   const createId = () => {
+    console.log('createId function is called'); // Add this line
+    toast.success('Sticky note added successfully!', {
+      duration: 3000,
+    });
+
     const createFirstSticky = document.getElementById('createStickyBtn');
     createFirstSticky.style.display = 'none';
 
@@ -359,10 +365,14 @@ const NoteApp = ({ selectedContent }) => {
 
   return (
     <div>
+      <Toaster
+        position="bottom-right"
+        reverseOrder={false}
+      />
       <header id="header">
         <nav id="navbar">
           <ul>
-          <li id="createSticky" onClick={createId} style={{ fontSize: '30px' }}><i className='fas fa-plus-circle'></i></li>
+            <li id="createSticky" onClick={createId} style={{ fontSize: '30px' }}><i className='fas fa-plus-circle'></i></li>
             <li id="deleteAll"></li>
           </ul>
         </nav>
